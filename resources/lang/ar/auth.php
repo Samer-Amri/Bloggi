@@ -15,5 +15,6 @@ return [
 
     'failed' => 'These credentials do not match our records.',
     'throttle' => 'Too many login attempts. Please try again in :seconds seconds.',
-
+    'your_email_address_will_not_be_published' => 'البريد الإلكتروني الخاص بك لن يتم نشره.',
+    'post_comment' => 'تعليق',
 ];

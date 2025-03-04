@@ -1,0 +1,93 @@
+@extends('layouts.admin')
+@section('style')
+    <link href="{{asset('backend/vendor/select2/css/select2.min.css')}}" rel="stylesheet">
+@endsection
+@section('content')
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex">
+            <h6 class="m-0 font-weight-bold text-primary">{{__('Backend/roles.create_role')}}</h6>
+            <div class="ml-auto">
+                <a href="{{route('admin.roles.index')}}" class="btn btn-primary">
+                    <span class="icon text-white-50">
+                        <i class="fa fa-home"></i>
+                    </span>
+                    <span class="text">{{__('Backend/roles.roles')}}</span>
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <form action="{{route('admin.roles.store')}}" method="post">
+                @csrf
+                <div class="row">
+                    <div class="col-3">
+                        <div class="form-group">
+                            <label for="name">{{__('Backend/roles.name')}}</label>
+                            <input type="text" id="name" name="name" class="form-control" value="{{old('name')}}">
+                            @error('name')<span class="text-danger">{{ $message }}</span>@enderror
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="form-group">
+                            <label for="display_name">{{__('Backend/roles.display_name')}}</label>
+                            <input type="text" id="display_name" name="display_name" class="form-control" value="{{old('display_name')}}">
+                            @error('display_name')<span class="text-danger">{{ $message }}</span>@enderror
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="form-group">
+                            <label for="display_name_en">{{__('Backend/roles.display_name_en')}}</label>
+                            <input type="text" id="display_name_en" name="display_name_en" class="form-control"
+                                   value="{{old('display_name_en')}}">
+                            @error('display_name_en')<span class="text-danger">{{ $message }}</span>@enderror
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <label for="allowed_route">{{__('Backend/roles.allowed_route')}}</label>
+                        <select id="allowed_route" name="allowed_route" class="form-control">
+                            <option
+                                value=""> ---
+                            </option>
+                            <option
+                                value="admin" {{old('allowed_route') == 'admin' ? 'selected' : ''}}>admin
+                            </option>
+                        </select>
+                        @error('allowed_route')<span class="text-danger">{{ $message }}</span>@enderror
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label for="permissions">{{ __('Backend/roles.permissions') }}</label>
+                            <select id="permissions" name="permissions[]" class="form-control select-multiple-tags" multiple="multiple">
+                                @foreach($permissions as $permission)
+                                    <option
+                                        value="{{$permission->id}}" {{in_array($permission->id, old('permissions[]', []))  ? 'selected' : ''}}>{{$permission->display_name()}}</option>
+                                @endforeach
+                            </select>
+                            @error('permissions')<span class="text-danger">{{ $message }}</span>@enderror
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group pt-4">
+                    <button type="submit" class="btn btn-primary">{{__('Backend/roles.submit')}}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+@endsection
+
+@section('script')
+    <script src="{{asset('backend/vendor/select2/js/select2.full.min.js')}}"></script>
+    <script>
+        $(function () {
+            $('.select-multiple-tags').select2({
+                minimumResultsForSearch: Infinity,
+                tags: true,
+                closeOnSelect: false,
+            });
+        });
+    </script>
+@endsection

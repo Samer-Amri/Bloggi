@@ -1,7 +1,7 @@
-# MindCMS Blog
+# Bloggi
 
 ## Prerequisites
-- PHP >= 7.3
+- PHP >= 8.2
 - Composer
 - Node.js & npm
 - MySQL or any other supported database

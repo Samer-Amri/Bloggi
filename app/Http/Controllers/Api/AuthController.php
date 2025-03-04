@@ -11,18 +11,27 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 use App\Models\Role;
 
+/**
+ * Class AuthController
+ *
+ * Controller for handling authentication-related API requests.
+ */
 class AuthController extends Controller
 {
+    /**
+     * Register a new user.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function register(Request $request)
     {
-
         $validation = Validator::make($request->all(), [
             'name' => ['required', 'string', 'max:255'],
             'username' => ['required', 'string', 'max:255', 'unique:users'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'mobile' => ['required', 'numeric', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            //        'user_image' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:20000']
         ]);
 
         if($validation->fails()) {
@@ -35,15 +44,19 @@ class AuthController extends Controller
         $data['mobile'] = $request->mobile;
         $data['password'] = bcrypt($request->password);
         $data['status'] = 1;
-        //        $data['user_image'] = $request->user_image;
 
         $user = User::create($data);
         $user->attachRole(Role::whereName('user')->first()->id);
 
         return $this->getRefreshToken($request->email, $request->password);
-
     }
 
+    /**
+     * Login a user.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function login(Request $request)
     {
         if(Auth::attempt(['username'=>$request->username, 'password'=>$request->password]) )
@@ -53,42 +66,45 @@ class AuthController extends Controller
         } else {
             return response()->json(['errors' => true, 'message' => 'Unauthorized']);
         }
-
-
     }
 
+    /**
+     * Get a refresh token.
+     *
+     * @param string $email
+     * @param string $password
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getRefreshToken($email, $password)
     {
-
         $verifyValue = app()->environment() == 'local' ? false : true;
         $response = Http::withOptions([
             'verify' => $verifyValue,
-
         ])->post(config('app.url') . '/oauth/token', [
-                'grant_type' => 'password',
-                'client_id' => config('passport.personal_access_client.id'),
-                'client_secret' => config('passport.personal_access_client.secret'),
-                'username' => $email,
-                'password' => $password,
-                'scope' => '*',
+            'grant_type' => 'password',
+            'client_id' => config('passport.personal_access_client.id'),
+            'client_secret' => config('passport.personal_access_client.secret'),
+            'username' => $email,
+            'password' => $password,
+            'scope' => '*',
         ]);
 
-
         return response()->json($response->json(), 200);
-
-
-
     }
 
+    /**
+     * Refresh the access token.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function refresh_token(Request $request)
     {
-
         $refresh_token = $request->header('RefreshTokenCode');
         $verifyValue = app()->environment() == 'local' ? false : true;
         try {
             $response = Http::withOptions([
                 'verify' => $verifyValue,
-
             ])->post(config('app.url') . '/oauth/token', [
                 'grant_type' => 'refresh_token',
                 'refresh_token' => $refresh_token,
@@ -99,8 +115,7 @@ class AuthController extends Controller
 
             return response()->json($response->json(), 200);
         } catch (\Exception $e) {
-            return response()->json( 'Unauthorized', 201);// 201 instead 401 for mobile app developers
+            return response()->json('Unauthorized', 201); // 201 instead 401 for mobile app developers
         }
-
     }
 }

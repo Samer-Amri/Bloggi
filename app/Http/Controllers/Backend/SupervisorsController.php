@@ -14,9 +14,17 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Intervention\Image\Facades\Image;
 
+/**
+ * Class SupervisorsController
+ *
+ * Controller for handling supervisor-related backend requests.
+ */
 class SupervisorsController extends Controller
 {
-
+    /**
+     * SupervisorsController constructor.
+     * Redirects to login form if the user is not authenticated.
+     */
     public function __construct() {
         if(\auth()->check()){
             $this->middleware('auth');
@@ -26,30 +34,39 @@ class SupervisorsController extends Controller
         }
     }
 
+    /**
+     * Display a listing of the supervisors.
+     *
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
         if (!\auth()->user()->ability('admin', 'manage_supervisors,show_supervisors')){
             return redirect('admin/index');
         }
 
-
         $users = User::query()
-        ->whereHas('roles', function ($query) {
-            $query->where('name', 'editor');
-        })
-            ->when(request('keyword') != '', function ($query){
-                $query->search(request('keyword'));
-            })
-            ->when(request('status') != '', function ($query){
-                $query->whereStatus(request('status'));
-            })
-            ->orderBy(request('sort_by') ??  'id', request('order_by') ??  'desc')
-            ->paginate(request('limit_by')?? '10')
-            ->withQueryString();
+                     ->whereHas('roles', function ($query) {
+                         $query->where('name', 'editor');
+                     })
+                     ->when(request('keyword') != '', function ($query){
+                         $query->search(request('keyword'));
+                     })
+                     ->when(request('status') != '', function ($query){
+                         $query->whereStatus(request('status'));
+                     })
+                     ->orderBy(request('sort_by') ??  'id', request('order_by') ??  'desc')
+                     ->paginate(request('limit_by')?? '10')
+                     ->withQueryString();
 
         return view('backend.supervisors.index', compact('users'));
     }
 
+    /**
+     * Show the form for creating a new supervisor.
+     *
+     * @return \Illuminate\View\View
+     */
     public function create()
     {
         if (!\auth()->user()->ability('admin', 'create_supervisors')){
@@ -57,9 +74,14 @@ class SupervisorsController extends Controller
         }
         $permissions = Permission::select( 'id', 'display_name', 'display_name_en')->get();
         return view('backend.supervisors.create' , compact('permissions'));
-
     }
 
+    /**
+     * Store a newly created supervisor in storage.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store(Request $request)
     {
         if (!\auth()->user()->ability('admin', 'create_supervisors')){
@@ -89,7 +111,6 @@ class SupervisorsController extends Controller
         $data ['receive_email']          = $request->receive_email;
         $data['email_verified_at']       = Carbon::now();
 
-
         if ($user_image = $request->file('user_image')) {
             $filename = Str::slug($request->username).'.'.$user_image->getClientOriginalExtension();
             $path = public_path('assets/users/' . $filename);
@@ -112,6 +133,12 @@ class SupervisorsController extends Controller
         ]);
     }
 
+    /**
+     * Display the specified supervisor.
+     *
+     * @param int $id
+     * @return \Illuminate\View\View
+     */
     public function show($id)
     {
         if (!\auth()->user()->ability('admin', 'display_supervisors')){
@@ -127,9 +154,14 @@ class SupervisorsController extends Controller
             'message' => 'Something was wrong. Supervisor Not Found',
             'alert-type' => 'danger',
         ]);
-
     }
 
+    /**
+     * Show the form for editing the specified supervisor.
+     *
+     * @param int $id
+     * @return \Illuminate\View\View
+     */
     public function edit($id)
     {
         if (!\auth()->user()->ability('admin', 'update_supervisors')){
@@ -145,9 +177,15 @@ class SupervisorsController extends Controller
             'message' => 'Something was wrong. Supervisor Not Found',
             'alert-type' => 'danger',
         ]);
-
     }
 
+    /**
+     * Update the specified supervisor in storage.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param int $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function update(Request $request, $id)
     {
         if (!\auth()->user()->ability('admin', 'update_supervisors')){
@@ -208,9 +246,14 @@ class SupervisorsController extends Controller
             'message' => 'Something was wrong please try again later',
             'alert-type' => 'danger',
         ]);
-
     }
 
+    /**
+     * Remove the specified supervisor from storage.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function destroy($id)
     {
         if (!\auth()->user()->ability('admin', 'delete_supervisors')){
@@ -233,10 +276,14 @@ class SupervisorsController extends Controller
             'message' => 'Something was wrong. Supervisor Not Found',
             'alert-type' => 'danger',
         ]);
-
-
     }
 
+    /**
+     * Remove the image of the specified supervisor.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return string
+     */
     public function removeImage(Request $request){
         if (!\auth()->user()->ability('admin', 'delete_supervisors')){
             return redirect('admin/index');

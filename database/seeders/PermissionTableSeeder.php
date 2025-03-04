@@ -41,7 +41,7 @@ class PermissionTableSeeder extends Seeder
         $displayPost = Permission::create(['name' => 'display_posts', 'display_name' => 'عرض المقال', 'description' => 'عرض تفاصيل المقال', 'display_name_en' => 'Show Post', 'description_en' => 'Show post details', 'route' => 'posts/{posts}', 'module' => 'posts', 'as' => 'posts.show', 'icon' => null, 'parent' => $managePosts->id, 'parent_show' => $managePosts->id, 'parent_original' => $managePosts->id, 'appear' => '0', 'ordering' => '0',]);
         $updatePosts = Permission::create(['name' => 'update_posts', 'display_name' => 'تعديل المقال', 'description' => 'تحديث تفاصيل المقال', 'display_name_en' => 'Update Post', 'description_en' => 'Update post details', 'route' => 'posts/{posts}/edit', 'module' => 'posts', 'as' => 'posts.edit', 'icon' => null, 'parent' => $managePosts->id, 'parent_show' => $managePosts->id, 'parent_original' => $managePosts->id, 'appear' => '0', 'ordering' => '0',]);
         $destroyPosts = Permission::create(['name' => 'delete_posts', 'display_name' => 'حذف المقال', 'description' => 'حذف المقال', 'display_name_en' => 'Delete Post', 'description_en' => 'Delete post', 'route' => 'posts/{posts}', 'module' => 'posts', 'as' => 'posts.delete', 'icon' => null, 'parent' => $managePosts->id, 'parent_show' => $managePosts->id, 'parent_original' => $managePosts->id, 'appear' => '0', 'ordering' => '0',]);
-
+        $restorePosts = Permission::create(['name' => 'restore_posts', 'display_name' => 'استعادة المقال', 'description' => 'استعادة المقال', 'display_name_en' => 'Restore Post', 'description_en' => 'Restore post', 'route' => 'posts/{posts}/restore', 'module' => 'posts', 'as' => 'posts.restore', 'icon' => null, 'parent' => $managePosts->id, 'parent_show' => $managePosts->id, 'parent_original' => $managePosts->id, 'appear' => '0', 'ordering' => '0',]);
 
         // announcements
 
@@ -425,6 +425,207 @@ class PermissionTableSeeder extends Seeder
             'ordering' => '0',
         ]);
 
+        // Roles
+
+        $manageRoles = Permission::create([
+            'name' => 'manage_roles',
+            'display_name' => 'الأدوار',
+            'description' => 'إدارة الأدوار',
+            'display_name_en' => 'Roles',
+            'description_en' => 'Manage Roles',
+            'route' => 'roles',
+            'module' => 'roles',
+            'as' => 'roles.index',
+            'icon' => 'fas fa-user-tag',
+            'parent' => '0',
+            'parent_original' => '0',
+            'appear' => '1',
+            'ordering' => '25',
+        ]);
+        $manageRoles->parent_show = $manageRoles->id;
+        $manageRoles->save();
+        $showRoles = Permission::create([
+            'name' => 'show_roles',
+            'display_name' => 'الأدوار',
+            'description' => 'عرض الأدوار',
+            'display_name_en' => 'Roles',
+            'description_en' => 'Show Roles',
+            'route' => 'roles',
+            'module' => 'roles',
+            'as' => 'roles.index',
+            'icon' => 'fas fa-user-tag',
+            'parent' => $manageRoles->id,
+            'parent_show' => $manageRoles->id,
+            'parent_original' => $manageRoles->id,
+            'appear' => '1',
+            'ordering' => '0',
+        ]);
+        $createRoles = Permission::create([
+            'name' => 'create_roles',
+            'display_name' => 'إنشاء دور',
+            'description' => 'إنشاء دور جديد',
+            'display_name_en' => 'Create Role',
+            'description_en' => 'Create Role',
+            'route' => 'roles/create',
+            'module' => 'roles',
+            'as' => 'roles.create',
+            'icon' => null,
+            'parent' => $manageRoles->id,
+            'parent_show' => $manageRoles->id,
+            'parent_original' => $manageRoles->id,
+            'appear' => '0',
+            'ordering' => '0',
+        ]);
+        $displayRoles = Permission::create([
+            'name' => 'display_roles',
+            'display_name' => 'عرض الدور',
+            'description' => 'عرض تفاصيل الدور',
+            'display_name_en' => 'Show Role',
+            'description_en' => 'Show Role',
+            'route' => 'roles/{roles}',
+            'module' => 'roles',
+            'as' => 'roles.show',
+            'icon' => null,
+            'parent' => $manageRoles->id,
+            'parent_show' => $manageRoles->id,
+            'parent_original' => $manageRoles->id,
+            'appear' => '0',
+            'ordering' => '0',
+        ]);
+        $updateRoles = Permission::create([
+            'name' => 'update_roles',
+            'display_name' => 'تحديث الدور',
+            'description' => 'تحديث بيانات الدور',
+            'display_name_en' => 'Update Role',
+            'description_en' => 'Update Role',
+            'route' => 'roles/{roles}/edit',
+            'module' => 'roles',
+            'as' => 'roles.edit',
+            'icon' => null,
+            'parent' => $manageRoles->id,
+            'parent_show' => $manageRoles->id,
+            'parent_original' => $manageRoles->id,
+            'appear' => '0',
+            'ordering' => '0',
+        ]);
+        $destroyRoles = Permission::create([
+            'name' => 'delete_roles',
+            'display_name' => 'حذف الدور',
+            'description' => 'حذف الدور',
+            'display_name_en' => 'Delete Role',
+            'description_en' => 'Delete Role',
+            'route' => 'roles/{roles}',
+            'module' => 'roles',
+            'as' => 'roles.delete',
+            'icon' => null,
+            'parent' => $manageRoles->id,
+            'parent_show' => $manageRoles->id,
+            'parent_original' => $manageRoles->id,
+            'appear' => '0',
+            'ordering' => '0',
+        ]);
+
+        // Permissions
+
+        $managePermissions = Permission::create([
+            'name' => 'manage_permissions',
+            'display_name' => 'الصلاحيات',
+            'description' => 'إدارة الصلاحيات',
+            'display_name_en' => 'Permissions',
+            'description_en' => 'Manage Permissions',
+            'route' => 'permissions',
+            'module' => 'permissions',
+            'as' => 'permissions.index',
+            'icon' => 'fas fa-user-lock',
+            'parent' => '0',
+            'parent_original' => '0',
+            'appear' => '1',
+            'ordering' => '30',
+        ]);
+        $managePermissions->parent_show = $managePermissions->id;
+        $managePermissions->save();
+        $showPermissions = Permission::create([
+            'name' => 'show_permissions',
+            'display_name' => 'الصلاحيات',
+            'description' => 'عرض الصلاحيات',
+            'display_name_en' => 'Permissions',
+            'description_en' => 'Show Permissions',
+            'route' => 'permissions',
+            'module' => 'permissions',
+            'as' => 'permissions.index',
+            'icon' => 'fas fa-user-lock',
+            'parent' => $managePermissions->id,
+            'parent_show' => $managePermissions->id,
+            'parent_original' => $managePermissions->id,
+            'appear' => '1',
+            'ordering' => '0',
+        ]);
+        $createPermissions = Permission::create([
+            'name' => 'create_permissions',
+            'display_name' => 'إنشاء صلاحية',
+            'description' => 'إنشاء صلاحية جديدة',
+            'display_name_en' => 'Create Permission',
+            'description_en' => 'Create Permission',
+            'route' => 'permissions/create',
+            'module' => 'permissions',
+            'as' => 'permissions.create',
+            'icon' => null,
+            'parent' => $managePermissions->id,
+            'parent_show' => $managePermissions->id,
+            'parent_original' => $managePermissions->id,
+            'appear' => '0',
+            'ordering' => '0',
+        ]);
+        $displayPermissions = Permission::create([
+            'name' => 'display_permissions',
+            'display_name' => 'عرض الصلاحية',
+            'description' => 'عرض تفاصيل الصلاحية',
+            'display_name_en' => 'Show Permission',
+            'description_en' => 'Show Permission',
+            'route' => 'permissions/{permissions}',
+            'module' => 'permissions',
+            'as' => 'permissions.show',
+            'icon' => null,
+            'parent' => $managePermissions->id,
+            'parent_show' => $managePermissions->id,
+            'parent_original' => $managePermissions->id,
+            'appear' => '0',
+            'ordering' => '0',
+        ]);
+        $updatePermissions = Permission::create([
+            'name' => 'update_permissions',
+            'display_name' => 'تحديث الصلاحية',
+            'description' => 'تحديث بيانات الصلاحية',
+            'display_name_en' => 'Update Permission',
+            'description_en' => 'Update Permission',
+            'route' => 'permissions/{permissions}/edit',
+            'module' => 'permissions',
+            'as' => 'permissions.edit',
+            'icon' => null,
+            'parent' => $managePermissions->id,
+            'parent_show' => $managePermissions->id,
+            'parent_original' => $managePermissions->id,
+            'appear' => '0',
+            'ordering' => '0',
+        ]);
+        $destroyPermissions = Permission::create([
+            'name' => 'delete_permissions',
+            'display_name' => 'حذف الصلاحية',
+            'description' => 'حذف الصلاحية',
+            'display_name_en' => 'Delete Permission',
+            'description_en' => 'Delete Permission',
+            'route' => 'permissions/{permissions}',
+            'module' => 'permissions',
+            'as' => 'permissions.delete',
+            'icon' => null,
+            'parent' => $managePermissions->id,
+            'parent_show' => $managePermissions->id,
+            'parent_original' => $managePermissions->id,
+            'appear' => '0',
+            'ordering' => '0',
+        ]);
+
+
         /*
         // E
         // SUPERVISORS
@@ -667,6 +868,9 @@ class PermissionTableSeeder extends Seeder
             'ordering' => '0',
             'sidebar_link' => '0',
         ]);
+
+
+
 
     }
 }

@@ -7,17 +7,34 @@ use App\Models\Category;
 use App\Models\Post;
 use App\Models\PostMedia;
 use App\Models\Tag;
+use App\Repositories\PostRepositoryInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Intervention\Image\Facades\Image;
 use Stevebauman\Purify\Facades\Purify;
 
+/**
+ * Class PostsController
+ *
+ * Controller for handling post-related backend requests.
+ */
 class PostsController extends Controller
 {
+    /**
+     * @var PostRepositoryInterface
+     */
+    protected $postRepository;
 
-    public function __construct() {
+    /**
+     * PostsController constructor.
+     *
+     * @param PostRepositoryInterface $postRepository
+     */
+    public function __construct(PostRepositoryInterface $postRepository) {
+        $this->postRepository = $postRepository;
         if(\auth()->check()){
             $this->middleware('auth');
         }
@@ -26,37 +43,48 @@ class PostsController extends Controller
         }
     }
 
+    /**
+     * Display a listing of the posts.
+     *
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
         if (!\auth()->user()->ability('admin', 'manage_posts,show_posts')){
             return redirect('admin/index');
         }
 
-        $posts = Post::with(['media', 'user', 'comments'])->post()
-        ->when(request('keyword') != '', function ($query){
-            $query->search(request('keyword'));
-        })
-        ->when(request('category_id') != '', function ($query){
-                $query->whereCategoryId(request('category_id'));
-            })
-        ->when(request('tag_id') != '', function ($query){
-                $query->whereHas('tags', function ($q) {
-                    $q->where('id', request('tag_id'));
-                });
-            })
-        ->when(request('status') != '', function ($query){
-                $query->whereStatus(request('status'));
-            })
-        ->orderBy(request('sort_by') ??  'id', request('order_by') ??  'desc')
-        ->paginate(request('limit_by')?? '10')
-        ->withQueryString();
+        $posts = $this->postRepository->all();
 
+        $posts = $this->postRepository->with(['media', 'user', 'comments'])->post()
+                                      ->when(request('keyword') != '', function ($query){
+                                          $query->search(request('keyword'));
+                                      })
+                                      ->when(request('category_id') != '', function ($query){
+                                          $query->whereCategoryId(request('category_id'));
+                                      })
+                                      ->when(request('tag_id') != '', function ($query){
+                                          $query->whereHas('tags', function ($q) {
+                                              $q->where('id', request('tag_id'));
+                                          });
+                                      })
+                                      ->when(request('status') != '', function ($query){
+                                          $query->whereStatus(request('status'));
+                                      })
+                                      ->orderBy(request('sort_by') ??  'id', request('order_by') ??  'desc')
+                                      ->paginate(request('limit_by')?? '10')
+                                      ->withQueryString();
 
         $tags = Tag::orderBy('id', 'desc')->select('id', 'name', 'name_en')->get();
         $categories= Category::orderBy('id', 'desc')->select('id', 'name',  'name_en')->get();
         return view('backend.posts.index', compact('posts', 'categories', 'tags'));
     }
 
+    /**
+     * Show the form for creating a new post.
+     *
+     * @return \Illuminate\View\View
+     */
     public function create()
     {
         if (!\auth()->user()->ability('admin', 'create_posts')){
@@ -65,9 +93,14 @@ class PostsController extends Controller
         $tags = Tag::select('name', 'id');
         $categories= Category::orderBy('id', 'desc')->select('name', 'id');
         return view('backend.posts.create', compact('categories', 'tags'));
-
     }
 
+    /**
+     * Store a newly created post in storage.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store(Request $request)
     {
         if (!\auth()->user()->ability('admin', 'create_posts')){
@@ -89,16 +122,18 @@ class PostsController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $data ['title']                   = $request->title;
-        $data ['title_en']                   = $request->title_en;
-        $data ['description']             = Purify::clean($request->description);
-        $data ['description_en']             = Purify::clean($request->description_en);
-        $data ['status']                  = $request->status;
-        $data ['post_type']                  = 'post';
-        $data ['comment_able']            = $request->comment_able;
-        $data ['category_id']             = $request->category_id;
+        $data = [
+            'title' => $request->title,
+            'title_en' => $request->title_en,
+            'description' => Purify::clean($request->description),
+            'description_en' => Purify::clean($request->description_en),
+            'status' => $request->status,
+            'post_type' => 'post',
+            'comment_able' => $request->comment_able,
+            'category_id' => $request->category_id,
+        ];
 
-        $post = auth()->user()->posts()->create($data);
+        $post = $this->postRepository->create($data);
 
         if($request->images && count($request->images) > 0) {
             $i = 1;
@@ -138,27 +173,40 @@ class PostsController extends Controller
             $post->tags()->sync($new_tags);
         }
 
-            if($request->status == 1) {
-                Cache::forget('recent_posts');
-                Cache::forget('global_tags');
-            }
+        if($request->status == 1) {
+            Cache::forget('recent_posts');
+            Cache::forget('global_tags');
+        }
 
-            return redirect()->route('admin.posts.index')->with([
-                'message' => 'Post Created Successfully',
-                'alert-type' => 'success',
-            ]);
+        return redirect()->route('admin.posts.index')->with([
+            'message' => 'Post Created Successfully',
+            'alert-type' => 'success',
+        ]);
     }
 
+    /**
+     * Display the specified post.
+     *
+     * @param int $id
+     * @return \Illuminate\View\View
+     */
     public function show($id)
     {
         if (!\auth()->user()->ability('admin', 'display_posts')){
             return redirect('admin/index');
         }
-        $post = Post::with(['media', 'user', 'category', 'comments'])->whereId($id)->post()->first();
+        $post = $this->postRepository
+            ->with(['media', 'user', 'category', 'comments'])
+            ->whereId($id)->post()->first();
         return view('backend.posts.show', compact( 'post') );
-
     }
 
+    /**
+     * Show the form for editing the specified post.
+     *
+     * @param int $id
+     * @return \Illuminate\View\View
+     */
     public function edit($id)
     {
         if (!\auth()->user()->ability('admin', 'update_posts')){
@@ -166,11 +214,17 @@ class PostsController extends Controller
         }
         $tags = Tag::select('id', 'name', 'name_en')->get();
         $categories = Category::orderBy('id', 'desc')->select('id', 'name', 'name_en')->get();
-        $post = Post::with('media')->whereId($id)->post()->first();
+        $post = $this->postRepository->with(['media'])->whereId($id)->post()->first();
         return view('backend.posts.edit', compact('categories', 'post', 'tags'));
-
     }
 
+    /**
+     * Update the specified post in storage.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param int $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function update(Request $request, $id)
     {
         if (!\auth()->user()->ability('admin', 'update_posts')){
@@ -192,19 +246,20 @@ class PostsController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $post = Post::whereId($id)->post()->first();
+        $post = $this->postRepository->find($id);
         if($post) {
-            $data ['title']                   = $request->title;
-            $data ['title_en']                   = $request->title_en;
-            $data ['slug']                   = null;
-            $data ['slug_en']                   = null;
-            $data ['description']             = Purify::clean($request->description);
-            $data ['description_en']             = Purify::clean($request->description_en);
-            $data ['status']                  = $request->status;
-            $data ['comment_able']            = $request->comment_able;
-            $data ['category_id']             = $request->category_id;
-
-            $post->update($data);
+            $data = [
+                'title' => $request->title,
+                'title_en' => $request->title_en,
+                'slug' => null,
+                'slug_en' => null,
+                'description' => Purify::clean($request->description),
+                'description_en' => Purify::clean($request->description_en),
+                'status' => $request->status,
+                'comment_able' => $request->comment_able,
+                'category_id' => $request->category_id,
+            ];
+            $this->postRepository->update($data, $id);
 
             if($request->images && count($request->images) > 0) {
                 $i = 1;
@@ -250,12 +305,18 @@ class PostsController extends Controller
         ]);
     }
 
+    /**
+     * Remove the specified post from storage.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function destroy($id)
     {
         if (!\auth()->user()->ability('admin', 'delete_posts')){
             return redirect('admin/index');
         }
-        $post = Post::whereId($id)->post()->first();
+        $post = $this->postRepository->find($id);
         if($post)
         {
             if($post->media->count() >0) {
@@ -266,7 +327,7 @@ class PostsController extends Controller
                 }
             }
 
-            $post->delete();
+            $this->postRepository->delete($id);
 
             return  redirect()->route('admin.posts.index')->with([
                 'message' => 'Post Deleted Successfully',
@@ -277,10 +338,14 @@ class PostsController extends Controller
             'message' => 'Something was wrong. Post Not Found',
             'alert-type' => 'danger',
         ]);
-
-
     }
 
+    /**
+     * Remove a specific image from a post.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return bool
+     */
     public function removeImage(Request $request){
         if (!\auth()->user()->ability('admin', 'delete_posts')){
             return redirect('admin/index');
@@ -294,5 +359,70 @@ class PostsController extends Controller
             return true;
         }
         return false;
+    }
+
+    /**
+     * Display a listing of the trashed posts for restoration.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function restoreIndex()
+    {
+        if (!\auth()->user()->ability('admin', 'restore_posts')){
+            return redirect('admin/index');
+        }
+
+        $posts = Post::onlyTrashed()->with(['media', 'user', 'comments', 'category'])->paginate(10);
+
+        return view('backend.posts.restore', compact('posts'));
+    }
+
+    /**
+     * Restore the specified trashed post.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function restore($id)
+    {
+        if (!\auth()->user()->ability('admin', 'restore_posts')){
+            return redirect('admin/index');
+        }
+
+        $post = Post::onlyTrashed()->find($id);
+        if ($post) {
+            $post->restore();
+            $post->update(['deleted_at' => null]);
+            $post->refresh();
+            if(is_null($post->deleted_at)) {
+                return redirect()->route('admin.posts.index')->with([
+                    'message'    => 'Post Restored Successfully',
+                    'alert-type' => 'success',
+                ]);
+            }
+            return redirect()->route('admin.posts.index')->with([
+                'message' => 'Something went wrong. Post Not Found',
+                'alert-type' => 'danger',
+            ]);
+        }
+    }
+
+    /**
+     * Restore all trashed posts.
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function restoreAll()
+    {
+        if (!\auth()->user()->ability('admin', 'restore_posts')){
+            return redirect('admin/index');
+        }
+
+        Post::onlyTrashed()->restore();
+
+        return redirect()->route('admin.posts.restoreIndex')->with([
+            'message' => 'All Posts Restored Successfully',
+            'alert-type' => 'success',
+        ]);
     }
 }

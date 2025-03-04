@@ -14,6 +14,7 @@ use App\Models\Comment;
 use App\Models\Post;
 use App\Models\PostMedia;
 use App\Models\Tag;
+use App\Traits\HandlesPostImages;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -24,18 +25,39 @@ use Illuminate\Support\Str;
 use Intervention\Image\Facades\Image;
 use Stevebauman\Purify\Facades\Purify;
 
+/**
+ * Class UsersController
+ *
+ * Controller for handling user-related API requests.
+ */
 class UsersController extends Controller
 {
+    use HandlesPostImages;
+
+    /**
+     * UsersController constructor.
+     * Apply authentication middleware.
+     */
     public function __construct()
     {
         $this->middleware('auth:api');
     }
 
+    /**
+     * Get authenticated user information.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function user_information() {
         $user = Auth::user();
-        return response()->json(['errors' => false, 'message' =>new UserResource($user)], 200);
+        return response()->json(['errors' => false, 'message' => new UserResource($user)], 200);
     }
 
+    /**
+     * Get notifications for the authenticated user.
+     *
+     * @return array
+     */
     public function getNotifications()
     {
         return [
@@ -44,23 +66,34 @@ class UsersController extends Controller
         ];
     }
 
+    /**
+     * Mark a notification as read.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return mixed
+     */
     public function markAsRead(Request $request)
     {
         return auth()->user()->notifications->where('id', $request->id)->markAsRead();
     }
 
-    public function  update_user_information(Request $request)
+    /**
+     * Update authenticated user information.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function update_user_information(Request $request)
     {
         $validation = Validator::make($request->all(),[
-
             'name' => 'required',
             'email' => 'required|email',
             'mobile' => 'required|numeric',
             'bio' => 'nullable|min:10',
-            //            'receive_email' => 'required|in:0,1',
             'receive_email' => 'required',
             'user_image' => 'nullable|image|max:20000|mimes:jpeg,jpg,png',
         ]);
+
         if($validation->fails())
         {
             return response()->json(['errors' => true, 'message' => $validation->errors()], 201);
@@ -71,6 +104,7 @@ class UsersController extends Controller
         $data['mobile'] = $request->mobile;
         $data['bio'] = $request->bio;
         $data['receive_email'] = $request->receive_email;
+
         if($image = $request->file('user_image'))
         {
             if(auth()->user()->user_image != '')
@@ -88,7 +122,9 @@ class UsersController extends Controller
 
             $data['user_image'] = $filename;
         }
+
         $update = auth()->user()->update($data);
+
         if($update)
         {
             return response()->json(['errors' => false, 'message' => 'User Information Updated Successfully'], 200);
@@ -97,12 +133,19 @@ class UsersController extends Controller
         }
     }
 
+    /**
+     * Update authenticated user password.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function update_user_password(Request $request)
     {
         $validation = Validator::make($request->all(), [
             'current_password' => 'required',
             'password' => 'required|confirmed',
         ]);
+
         if($validation->fails())
         {
             return response()->json(['errors' => true, 'message' => $validation->errors()], 201);
@@ -123,18 +166,13 @@ class UsersController extends Controller
         {
             return response()->json(['errors' => true, 'message' => 'Current Password is wrong'], 201);
         }
-
-
-
-
     }
 
-
-/*    public function details() {
-        $user = Auth::user();
-        return response()->json($user, 200);
-    }*/
-
+    /**
+     * Get posts of the authenticated user.
+     *
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     */
     public function my_posts()
     {
         $user = Auth::user();
@@ -142,6 +180,11 @@ class UsersController extends Controller
         return UsersPostsResource::collection($posts);
     }
 
+    /**
+     * Get tags and categories for creating a post.
+     *
+     * @return array
+     */
     public function create_post()
     {
         $tags = Tag::all();
@@ -149,9 +192,14 @@ class UsersController extends Controller
         return ['tags'=> UsersTagsResource::collection($tags), 'categories'=> UsersCategoriesResource::collection($categories)];
     }
 
+    /**
+     * Store a new post.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function store_post(Request $request)
     {
-        //        dd($request->all());
         $validator = Validator::make($request->all(), [
             'title'          => 'required',
             'description'    => 'required|min:50',
@@ -173,30 +221,7 @@ class UsersController extends Controller
 
         $post = auth()->user()->posts()->create($data);
 
-        if($request->images && count($request->images) > 0) {
-            $i = 1;
-            foreach ($request->images as $file) {
-                $filename = $post->slug . '-' . time() . '-' . $i . '.'
-                            . $file->getClientOriginalExtension();
-                $file_size = $file->getSize();
-                $file_type = $file->getMimeType();
-                $path = public_path('assets/posts/' . $filename);
-                Image::make($file->getRealPath())->resize(
-                    800,
-                    null,
-                    function ($constraint) {
-                        $constraint->aspectRatio();
-                    }
-                )->save($path, 100);
-
-                $post->media()->create([
-                    'file_name' => $filename,
-                    'file_size' => $file_size,
-                    'file_type' => $file_type,
-                ]);
-                $i++;
-            }
-        }
+        $this->handlePostImages($post, $request->images);
 
         if(count($request->tags) > 0) {
             $new_tags = [];
@@ -217,9 +242,14 @@ class UsersController extends Controller
         }
 
         return response()->json(['errors' => false, 'message' => 'Post created successfully'], 200);
-
     }
 
+    /**
+     * Get post details for editing.
+     *
+     * @param string|int $post
+     * @return array
+     */
     public function edit_post($post)
     {
         $post = Post::whereSlug($post)->orWhere('id', $post)->whereUserId(auth()->id())->first();
@@ -228,6 +258,13 @@ class UsersController extends Controller
         return ['post' => new UsersPostResource($post), 'tags'=> UsersTagsResource::collection($tags), 'categories'=> UsersCategoriesResource::collection($categories)];
     }
 
+    /**
+     * Update an existing post.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param string|int $post
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function update_post(Request $request, $post)
     {
         $validator = Validator::make($request->all(), [
@@ -242,7 +279,9 @@ class UsersController extends Controller
         if($validator->fails()) {
             return response()->json(['errors' => true, 'messages' => $validator->errors()], 201);
         }
+
         $post = Post::whereSlug($post)->orWhere('id', $post)->whereUserId(auth()->id())->first();
+
         if($post) {
             $data ['title']                   = $request->title;
             $data ['description']             = Purify::clean($request->description);
@@ -286,15 +325,21 @@ class UsersController extends Controller
             }
 
             return response()->json(['errors' => false, 'message' => 'Post Updated Successfully'], 200);
-
         }
-        return response()->json(['errors' => true, 'message' => 'Unauthorized'], 201);// 201 instead 401 for mobile app developers
 
+        return response()->json(['errors' => true, 'message' => 'Unauthorized'], 201);
     }
 
+    /**
+     * Delete a post.
+     *
+     * @param string|int $post_id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function delete_post($post_id)
     {
         $post = Post::whereSlug($post_id)->orWhere('id', $post_id)->whereUserId(auth()->id())->first();
+
         if($post)
         {
             if($post->media->count() >0) {
@@ -309,11 +354,20 @@ class UsersController extends Controller
 
             return  response()->json(['errors' => false, 'message' => 'Post Deleted Successfully'], 200);
         }
-        return response()->json(['errors' => true, 'message' => 'Something was wrong'], 201);// 201 instead 401 for mobile app developers
+
+        return response()->json(['errors' => true, 'message' => 'Something was wrong'], 201);
     }
+
+    /**
+     * Delete a specific post media.
+     *
+     * @param int $media_id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function destroy_post_media($media_id)
     {
         $media = PostMedia::whereId($media_id)->first();
+
         if($media){
             if(File::exists('assets/posts/'.$media->file_name)) {
                 unlink('assets/posts/'.$media->file_name);
@@ -321,37 +375,58 @@ class UsersController extends Controller
             $media->delete();
             return response()->json(['errors' => false, 'message' => 'Media Deleted Successfully'], 200);
         }
-        return response()->json(['errors' => true, 'message' => 'Something was wrong'], 201);// 201 instead 401 for mobile app developers
+
+        return response()->json(['errors' => true, 'message' => 'Something was wrong'], 201);
     }
 
+    /**
+     * Get all comments for the authenticated user's posts.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function all_comments(Request $request)
     {
         $commentsQuery = Comment::query();
+
         if (isset($request->post) && $request->post != '') {
             $commentsQuery = $commentsQuery->where('post_id', $request->post);
         } else {
             $posts_id = auth()->user()->posts->pluck('id')->toArray();
             $commentsQuery = $commentsQuery->whereIn('post_id', $posts_id);
         }
-        $comments = $commentsQuery->orderBy('id', 'desc');
-        $comments = $comments->get();
+
+        $comments = $commentsQuery->orderBy('id', 'desc')->get();
 
         return response()->json(UsersPostCommentsResource::collection($comments),  200);
     }
 
+    /**
+     * Get a specific comment for editing.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function edit_comment($id)
     {
         $comment = Comment::whereId($id)->WhereHas('post', function ($query){
             $query->where('posts.user_id', auth()->id() );
         })->first();
+
         if($comment) {
             return response()->json(['errors' => false, 'message' => new UsersPostCommentsResource($comment)], 200);
-        } else
-        {
-            return response()->json(['errors' => true, 'message' => 'Something was wrong'], 201);// 201 instead 401 for mobile app developers
+        } else {
+            return response()->json(['errors' => true, 'message' => 'Something was wrong'], 201);
         }
     }
 
+    /**
+     * Update a specific comment.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function update_comment(Request $request, $id)
     {
         $validation = Validator::make($request->all(), [
@@ -361,12 +436,15 @@ class UsersController extends Controller
             'status' => 'required',
             'comment' => 'required',
         ]);
+
         if($validation->fails()) {
-            return response()->json(['errors' => true, 'message' => $validation->errors()], 201);// 201 instead 401 for mobile app developers
+            return response()->json(['errors' => true, 'message' => $validation->errors()], 201);
         }
+
         $comment = Comment::whereId($id)->WhereHas('post', function ($query){
             $query->where('posts.user_id', auth()->id() );
         })->first();
+
         if($comment) {
             $data['name']       = $request->name;
             $data['email']      = $request->email;
@@ -375,32 +453,47 @@ class UsersController extends Controller
             $data['comment']    = Purify::clean($request->comment);
 
             $comment->update($data);
+
             if($request->status == 1) {
                 Cache::forget('recent_comments');
             }
+
             return response()->json(['errors' => false, 'message' => 'Comment Updated Successfully'], 200);
         }
-        return response()->json(['errors' => true, 'message' => 'Something was wrong'], 201);// 201 instead 401 for mobile app developers
 
+        return response()->json(['errors' => true, 'message' => 'Something was wrong'], 201);
     }
 
+    /**
+     * Delete a specific comment.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function delete_comment($id)
     {
         $comment = Comment::whereId($id)->WhereHas('post', function ($query){
             $query->where('posts.user_id', auth()->id() );
         })->first();
+
         if($comment) {
             $comment->delete();
             Cache::forget('recent_comments');
             return response()->json(['errors' => false, 'message' => 'Comment Deleted Successfully'], 200);
         }
-        return response()->json(['errors' => true, 'message' => 'Something was wrong. Comment Not Found'], 201);// 201 instead 401 for mobile app developers
+
+        return response()->json(['errors' => true, 'message' => 'Something was wrong. Comment Not Found'], 201);
     }
 
+    /**
+     * Logout the authenticated user.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function logout(Request $request)
     {
         $request->user()->token()->revoke();
         return response()->json(['errors' => false, 'message' => 'Successfully logged out']);
     }
-
 }

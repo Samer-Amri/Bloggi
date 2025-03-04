@@ -4,13 +4,23 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Mindscms\Entrust\EntrustPermission;
+use Nicolaslopezj\Searchable\SearchableTrait;
 
 class Permission extends EntrustPermission
 {
-    use HasFactory;
+    use HasFactory, SearchableTrait;
 
     protected $guarded = [];
 
+    protected $searchable = [
+        'columns' => [
+            'permissions.name' => 10,
+            'permissions.display_name' => 10,
+            'permissions.display_name_en' => 10,
+            'permissions.description' => 10,
+            'permissions.description_en' => 10,
+        ],
+    ];
     public function parent()
     {
         return $this->hasOne(Permission::class, 'id', 'parent');

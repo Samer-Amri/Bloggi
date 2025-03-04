@@ -11,6 +11,12 @@
                     </span>
                     <span class="text">{{__('Backend/posts.add_post')}}</span>
                 </a>
+                <a href="{{route('admin.posts.restoreIndex')}}" class="btn btn-warning ml-2">
+                    <span class="icon text-white-50">
+                        <i class="fa fa-undo"></i>
+                    </span>
+                    <span class="text">{{__('Backend/posts.restore_posts')}}</span>
+                </a>
             </div>
         </div>
         @include('backend.posts.filter.filter')

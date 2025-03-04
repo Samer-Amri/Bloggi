@@ -20,11 +20,11 @@
                                     @if($post->media->count() > 1)
                                         <a class="carousel-control-prev" href="#carouselIndicators" role="button" data-slide="prev">
                                             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                            <span class="sr-only">Previous</span>
+                                            <span class="sr-only">{{__('frontend/general.previous')}}</span>
                                         </a>
                                         <a class="carousel-control-next" href="#carouselIndicators" role="button" data-slide="next">
                                             <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                            <span class="sr-only">Next</span>
+                                            <span class="sr-only">{{__('frontend/general.next')}}</span>
                                         </a>
                                     @endif
                                 </div>
@@ -43,22 +43,22 @@
                                     <p>{!! $post->description !!}</p>
                                     @if($post->tags->count() >0)
                                         <div class="post__meta">
-                                            <span>Tags : </span>
+                                            <span>{{__('frontend/general.tags')}} : </span>
                                             @foreach($post->tags as $tag)
-                                                <a href="{{ route('frontend.tag.posts', $tag->slug) }}" class="bg-info p-1"><span class="text-white">{{ $tag->name }}</span></a>
+                                                <a href="{{ route('frontend.tag.posts', $tag->slug) }}" class="bg-info p-1"><span class="text-white">{{ $tag->name() }}</span></a>
                                             @endforeach
                                         </div>
                                     @endif
                                 </div>
                                 <ul class="blog_meta">
-                                    <li><a href="#">{{ $post->approved_comments->count() }} comment(s)</a></li>
+                                    <li><a href="#">{{ $post->approved_comments->count() }} {{__('frontend/general.comments')}}</a></li>
                                     <li> / </li>
-                                    <li>Category:<span>{{ $post->category->name }}</span></li>
+                                    <li>{{__('frontend/general.category')}} :<span>{{ $post->category->name() }}</span></li>
                                 </ul>
                             </div>
                         </article>
                         <div class="comments_area">
-                            <h3 class="comment__title">{{ $post->approved_comments->count() }} comment(s)</h3>
+                            <h3 class="comment__title">{{ $post->approved_comments->count() }} {{__('frontend/general.comments')}}</h3>
                             <ul class="comment__list">
 
                                 @forelse($post->approved_comments as $comment)
@@ -77,32 +77,35 @@
                                     </div>
                                 </li>
                                 @empty
-                                    <p>No comments found.</p>
+                                    <p>{{__('frontend/general.no_comments')}}</p>
 
                                 @endforelse
                             </ul>
                         </div>
                         <div class="comment_respond">
-                            <h3 class="reply_title">Leave a Reply <small></small></h3>
-
-                            <form method="post" action="{{route('frontend.posts.add_comment', $post->slug)}}" enctype="multipart/form-data">
+                            <h3 class="reply_title">{{__('frontend/general.leave_reply')}}<small></small></h3>
+                            <form method="post" action="{{route('frontend.posts.add_comment', $post->slug)}}" enctype="multipart/form-data" class="comment__form">
                                 @csrf
-                                <p>{{ __('auth.your_email_address_will_not_be_published') }}</p>
+                                <p>{{ __('Frontend/general.not_published') }}</p>
                                 <div class="input__box">
-                                 <textarea name="comment" placeholder="Your comment here">{{ old('comment') }}</textarea>
+                                 <textarea name="comment"placeholder="{{__('frontend/general.your_comment')}}"
+                                 >{{ old('comment') }}</textarea>
                                     @error('comment') <span class="text-danger">{{ $message }}</span> @enderror
                                 </div>
                                 <div class="input__wrapper clearfix">
                                     <div class="input__box name one--third">
-                                        <input type="text" name="name" placeholder="Your name here" value="{{ old('name') }}">
+                                        <input type="text"  name="name" placeholder="{{__('frontend/general.your_name')}}"
+                                               value="{{ old('name') }}">
                                         @error('name') <span class="text-danger">{{ $message }}</span> @enderror
                                     </div>
                                     <div class="input__box email one--third">
-                                        <input type="email" name="email" placeholder="Your email here" value="{{ old('email') }}">
+                                        <input type="email" name="email" placeholder="{{__('frontend/general.your_email')}}"
+                                               value="{{ old('email') }}">
                                         @error('email') <span class="text-danger">{{ $message }}</span> @enderror
                                     </div>
                                     <div class="input__box website one--third">
-                                        <input type="text" name="url" placeholder="Your website here" value="{{ old('url') }}">
+                                        <input type="text" name="url" placeholder="{{__('frontend/general.your_website')}}"
+                                               value="{{ old('url') }}">
                                         @error('url') <span class="text-danger">{{ $message }}</span> @enderror
                                     </div>
                                 </div>
@@ -110,6 +113,7 @@
                                     <button type="submit" class="btn btn-primary">{{ __('auth.post_comment') }}</button>
                                 </div>
                             </form>
+
                         </div>
                     </div>
                 </div>

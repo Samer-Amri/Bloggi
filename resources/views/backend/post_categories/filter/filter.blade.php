@@ -23,11 +23,11 @@
                     <select name="sort_by" class="form-control">
                         <option value="">---</option>
                         <option
-                            value="id" {{ old('status',request('sort_by')) == 'id' ? 'selected' : '' }}>{{ __('Backend/post_categories.id') }}</option>
+                            value="id" {{ old('sort_by',request('sort_by')) == 'id' ? 'selected' : '' }}>{{ __('Backend/post_categories.id') }}</option>
                         <option
-                            value="name" {{ old('status',request('sort_by')) == 'name' ? 'selected' : '' }}>{{ __('Backend/post_categories.name') }}</option>
+                            value="name" {{ old('sort_by',request('sort_by')) == 'name' ? 'selected' : '' }}>{{ __('Backend/post_categories.name') }}</option>
                         <option
-                            value="created_at" {{ old('status',request('sort_by')) == 'created_at' ? 'selected' : '' }}>{{ __('Backend/post_categories.created_at') }}</option>
+                            value="created_at" {{ old('sort_by',request('sort_by')) == 'created_at' ? 'selected' : '' }}>{{ __('Backend/post_categories.created_at') }}</option>
                     </select>
                 </div>
             </div>

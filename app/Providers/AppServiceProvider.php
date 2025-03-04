@@ -4,6 +4,8 @@ namespace App\Providers;
 
 
 use Carbon\Carbon;
+use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Events\Dispatcher as EventsDispatcher;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Lang;
@@ -19,7 +21,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $this->app->bind(
+            'App\Repositories\PostRepositoryInterface',
+            'App\Repositories\PostRepository'
+        );
+        $this->app->bind(Dispatcher::class, EventsDispatcher::class);
     }
 
     /**

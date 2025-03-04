@@ -13,10 +13,17 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Intervention\Image\Facades\Image;
 
-
+/**
+ * Class UsersController
+ *
+ * Controller for handling user-related backend requests.
+ */
 class UsersController extends Controller
 {
-
+    /**
+     * UsersController constructor.
+     * Redirects to login form if the user is not authenticated.
+     */
     public function __construct() {
         if(\auth()->check()){
             $this->middleware('auth');
@@ -26,39 +33,53 @@ class UsersController extends Controller
         }
     }
 
+    /**
+     * Display a listing of the users.
+     *
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
         if (!\auth()->user()->ability('admin', 'manage_users,show_users')){
             return redirect('admin/index');
         }
 
-
         $users = User::query()
-        ->whereHas('roles', function ($query) {
-            $query->where('name', 'user');
-        })
-            ->when(request('keyword') != '', function ($query){
-                $query->search(request('keyword'));
-            })
-            ->when(request('status') != '', function ($query){
-                $query->whereStatus(request('status'));
-            })
-            ->orderBy(request('sort_by') ??  'id', request('order_by') ??  'desc')
-            ->paginate(request('limit_by')?? '10')
-            ->withQueryString();
+                     ->whereHas('roles', function ($query) {
+                         $query->where('name', 'user');
+                     })
+                     ->when(request('keyword') != '', function ($query){
+                         $query->search(request('keyword'));
+                     })
+                     ->when(request('status') != '', function ($query){
+                         $query->whereStatus(request('status'));
+                     })
+                     ->orderBy(request('sort_by') ??  'id', request('order_by') ??  'desc')
+                     ->paginate(request('limit_by')?? '10')
+                     ->withQueryString();
 
         return view('backend.users.index', compact('users'));
     }
 
+    /**
+     * Show the form for creating a new user.
+     *
+     * @return \Illuminate\View\View
+     */
     public function create()
     {
         if (!\auth()->user()->ability('admin', 'create_users')){
             return redirect('admin/index');
         }
-        return view('backend.users.create' );
-
+        return view('backend.users.create');
     }
 
+    /**
+     * Store a newly created user in storage.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store(Request $request)
     {
         if (!\auth()->user()->ability('admin', 'create_users')){
@@ -87,23 +108,20 @@ class UsersController extends Controller
         $data ['receive_email']          = $request->receive_email;
         $data['email_verified_at']       = Carbon::now();
 
-
         if($user_image = $request->file('user_image')) {
-
-                $filename = Str::slug($request->username) .'.' . $user_image->getClientOriginalExtension();
-
-                $path = public_path('assets/users/' . $filename);
-                Image::make($user_image->getRealPath())->resize(
-                    300,
-                    300,
-                    function ($constraint) {
-                        $constraint->aspectRatio();
-                    }
-                )->save($path, 100);
-                $data['user_image'] = $filename;
+            $filename = Str::slug($request->username) .'.' . $user_image->getClientOriginalExtension();
+            $path = public_path('assets/users/' . $filename);
+            Image::make($user_image->getRealPath())->resize(
+                300,
+                300,
+                function ($constraint) {
+                    $constraint->aspectRatio();
+                }
+            )->save($path, 100);
+            $data['user_image'] = $filename;
         }
-            $user = User::create($data);
-            $user->attachRole(Role::whereName('user')->first()->id);
+        $user = User::create($data);
+        $user->attachRole(Role::whereName('user')->first()->id);
 
         return redirect()->route('admin.users.index')->with([
             'message' => 'User Created Successfully',
@@ -111,6 +129,12 @@ class UsersController extends Controller
         ]);
     }
 
+    /**
+     * Display the specified user.
+     *
+     * @param int $id
+     * @return \Illuminate\View\View
+     */
     public function show($id)
     {
         if (!\auth()->user()->ability('admin', 'display_users')){
@@ -126,9 +150,14 @@ class UsersController extends Controller
             'message' => 'Something was wrong. User Not Found',
             'alert-type' => 'danger',
         ]);
-
     }
 
+    /**
+     * Show the form for editing the specified user.
+     *
+     * @param int $id
+     * @return \Illuminate\View\View
+     */
     public function edit($id)
     {
         if (!\auth()->user()->ability('admin', 'update_users')){
@@ -142,9 +171,15 @@ class UsersController extends Controller
             'message' => 'Something was wrong. User Not Found',
             'alert-type' => 'danger',
         ]);
-
     }
 
+    /**
+     * Update the specified user in storage.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param int $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function update(Request $request, $id)
     {
         if (!\auth()->user()->ability('admin', 'update_users')){
@@ -202,13 +237,18 @@ class UsersController extends Controller
                 'alert-type' => 'success',
             ]);
         }
-            return redirect()->route('admin.users.index')->with([
-                'message' => 'Something was wrong please try again later',
-                'alert-type' => 'danger',
-            ]);
-
+        return redirect()->route('admin.users.index')->with([
+            'message' => 'Something was wrong please try again later',
+            'alert-type' => 'danger',
+        ]);
     }
 
+    /**
+     * Remove the specified user from storage.
+     *
+     * @param int $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function destroy($id)
     {
         if (!\auth()->user()->ability('admin', 'delete_users')){
@@ -231,21 +271,25 @@ class UsersController extends Controller
             'message' => 'Something was wrong. User Not Found',
             'alert-type' => 'danger',
         ]);
-
-
     }
 
+    /**
+     * Remove the image of the specified user.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return string
+     */
     public function removeImage(Request $request){
         if (!\auth()->user()->ability('admin', 'delete_users')){
             return redirect('admin/index');
         }
         $user = User::whereId($request->user_id)->first();
         if($user) {
-                if(File::exists('assets/users/'. $user->user_image)){
-                    unlink('assets/users/'. $user->user_image);
-                }
-                $user->user_image = null;
-                $user->save();
+            if(File::exists('assets/users/'. $user->user_image)){
+                unlink('assets/users/'. $user->user_image);
+            }
+            $user->user_image = null;
+            $user->save();
             return 'true';
         }
         return 'false';

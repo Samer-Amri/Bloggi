@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => 'web'], function () {
     Route::get('/',                                         [Frontend\IndexController::class, 'index'])->name('frontend.index');
+    Route::get('/',                                         [Frontend\IndexController::class, 'index'])->name('frontend.index');
+    Route::get('js/lang_ar.js', [ServiceController::class, 'vue_translate_ar'])->name('vue_translate_ar');
+    Route::get('js/lang_en.js', [ServiceController::class, 'vue_translate_en'])->name('vue_translate_en');
     // Authentication Routes...
     Route::get('/login',                                    [Frontend\Auth\LoginController::class, 'showLoginForm'])->name('frontend.show_login_form');
     Route::post('login',                                    [Frontend\Auth\LoginController::class, 'login'])->name('frontend.login');
@@ -60,7 +63,13 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function() {
 
         Route::get('/',                                 [Backend\AdminController::class, 'index'])->name('index_route');
         Route::get('/index',                            [Backend\AdminController::class, 'index'])->name('index');
+        // Profile
+        Route::get('/profile', [Backend\AdminController::class, 'profile'])->name('admin-profile');
+        Route::post('/profile/{id}', [Backend\AdminController::class, 'profileUpdate'])->name('profile-update');
 
+        Route::get('/posts/restore', [Backend\PostsController::class, 'restoreIndex'])->name('posts.restoreIndex');
+        Route::post('/posts/restoreAll', [Backend\PostsController::class, 'restoreAll'])->name('posts.restoreAll');
+        Route::patch('/posts/restore/{id}', [Backend\PostsController::class, 'restore'])->name('posts.restore');
         Route::post('/posts/removeImage/{media_id}',    [Backend\PostsController::class, 'removeImage'])->name('posts.media.destroy');
         Route::resource('posts',                        Backend\PostsController::class);
         // announcements
@@ -76,11 +85,15 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function() {
 
         Route::resource('contact_us',                   Backend\ContactUsController::class);
 
+
+
         Route::post('/users/removeImage',               [Backend\UsersController::class, 'removeImage'])->name('users.remove_image');
         Route::resource('users',                        Backend\UsersController::class);
         Route::post('/supervisors/removeImage',         [Backend\SupervisorsController::class, 'removeImage'])->name('supervisors.remove_image');
         Route::resource('supervisors',                  Backend\SupervisorsController::class);
         Route::resource('settings',                     Backend\SettingsController::class);
+        Route::resource('roles',                  Backend\RolesController::class);
+        Route::resource('permissions',                  Backend\PermissionsController::class);
     });
 });
 

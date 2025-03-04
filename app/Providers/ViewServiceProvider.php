@@ -112,9 +112,10 @@ class ViewServiceProvider extends ServiceProvider
 
                 $recent_announcements = Cache::get('recent_announcements');
 
+                $dir_lang = config('app.locale') == 'ar' ? 'rtl' : 'ltr';
 
-
-                $view->with([
+                    $view->with([
+                    'dir_lang' => $dir_lang,
                     'recent_posts' => $recent_posts,
                     'recent_announcements' => $recent_announcements,
                     'recent_comments' => $recent_comments,

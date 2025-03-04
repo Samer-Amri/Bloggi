@@ -7,6 +7,11 @@ use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\ConfirmsPasswords;
 use Illuminate\Http\Request;
 
+/**
+ * Class ConfirmPasswordController
+ *
+ * Controller for handling password confirmations.
+ */
 class ConfirmPasswordController extends Controller
 {
     /*
@@ -39,11 +44,22 @@ class ConfirmPasswordController extends Controller
         $this->middleware('auth');
     }
 
+    /**
+     * Show the password confirmation form.
+     *
+     * @return \Illuminate\View\View
+     */
     public function showConfirmForm()
     {
         return view('backend.auth.passwords.confirm');
     }
 
+    /**
+     * Reset the password confirmation timeout.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return void
+     */
     protected function resetPasswordConfirmationTimeout(Request $request)
     {
         $request->session()->put('backend.auth.password_confirmed_at', time());

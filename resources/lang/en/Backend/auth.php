@@ -22,5 +22,8 @@ return [
     'please_check_email' => 'Before proceeding, please check your email for a verification link.',
     'if_not_received' => 'If you did not receive the email',
     'request_another' => 'click here to request another',
+    'login_with_google' => 'Login with Google',
+    'login_with_facebook' => 'Login with Facebook',
+    'login_with_twitter' => 'Login with Twitter',
 ];
 ?>

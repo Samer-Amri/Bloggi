@@ -4,60 +4,76 @@
     <link rel="stylesheet" href="{{ asset('frontend/js/select2/css/select2.min.css') }}"/>
 @endsection
 @section('content')
-    {{--    I am Index Page--}}
                 <div class="col-lg-9 col-12">
-                        <h3>Edit Post ({{ $post->title }})</h3>
-                        {!! Form::model($post, ['route' => ['users.post.update', $post->id], 'method' => 'put', 'files' => true]) !!}
+                        <h3>{{ __('frontend/general.edit_post', ['title' => $post->title]) }}</h3>
+                    <form action="{{ route('users.post.update', $post->id) }}" method="post" enctype="multipart/form-data">
+                        @csrf
+                        @method('put')
                         <div class="form-group">
-                            {!! Form::label('title', "Title") !!}
-                            {!! Form::text('title', old('title', $post->title), ['class' => 'form-control', 'placeholder' => 'Your Title' ]) !!}
+                            <label for="title">{{ __('frontend/general.title') }}</label>
+                            <input type="text" name="title" id="title" class="form-control" value="{{ old('title', $post->title) }}">
                             @error('title')<span class="text-danger">{{ $message }}</span>@enderror
                         </div>
                         <div class="form-group">
-                            {!! Form::label('description', "Description") !!}
-                            {!! Form::textarea('description', old('description', $post->description), ['class' => 'form-control summernote', 'placeholder' => 'Your Description' ]) !!}
+                            <label for="description">{{ __('frontend/general.description') }}</label>
+                            <textarea name="description" id="description" class="form-control summernote" >{{ old('description', $post->description) }}</textarea>
                             @error('description')<span class="text-danger">{{ $message }}</span>@enderror
                         </div>
 
                     <div class="form-group">
-                        {!! Form::label('tags', "Tags") !!}
-                        <button type="button" class="btn btn-primary btn-xs" id="select_btn_tag">Select all</button>
-                        <button type="button" class="btn btn-primary btn-xs" id="deselect_btn_tag">Deselect all</button>
-                        {!! Form::select('tags[]', $tags->toArray(),old('tags', $post->tags), ['class' => 'form-control selects', 'multiple' => 'multiple', 'id' => 'select_all_tags' ]) !!}
+                        <label for="tags">{{ __('frontend/general.tags') }}</label>
+                        <button type="button" class="btn btn-primary btn-xs" id="select_btn_tag">{{ __('frontend/general.select_all') }}</button>
+                        <button type="button" class="btn btn-primary btn-xs" id="deselect_btn_tag">{{ __('frontend/general.deselect_all') }}</button>
+                        <select name="tags[]" id="select_all_tags" class="form-control selects" multiple>
+                            @foreach($tags->toArray() as $tag)
+                                <option value="{{ $tag->id }}" {{ in_array($tag->id, old(['tags[]', $post->tags])) ? 'selected' : '' }}>{{ $tag->name() }}</option>
+                            @endforeach
+                        </select>
                         @error('tags')<span class="text-danger">{{ $message }}</span>@enderror
                     </div>
 
                         <div class="row">
                             <div class="col-4">
-                                {!! Form::label('category_id', "category_id") !!}
-                                {!! Form::select('category_id', ['' => '---' ] + $categories->toArray() ,  old('category_id', $post->category_id), ['class' => 'form-control', 'placeholder' => 'Your Title' ]) !!}
+                                <label for="category_id">{{ __('frontend/general.category') }}</label>
+                                <select name="category_id" id="category_id" class="form-control">
+                                    <option value="">---</option>
+                                    @foreach($categories->toArray() as $category)
+                                        <option value="{{ $category->id }}" {{ old('category_id', $post->category_id) == $category->id ? 'selected' : '' }}>{{ $category->name() }}</option>
+                                    @endforeach
+                                </select>
                                 @error('category_id')<span class="text-danger">{{ $message }}</span>@enderror
                             </div>
                             <div class="col-4">
-                                {!! Form::label('comment_able', "comment_able") !!}
-                                {!! Form::select('comment_able', ['0' => 'No', '1' => 'Yes' ],  old('comment_able', $post->comment_able), ['class' => 'form-control', 'placeholder' => 'Your Title' ]) !!}
+                                <label for="comment_able">{{ __('frontend/general.comment_able') }}</label>
+                                <select name="comment_able" id="comment_able" class="form-control">
+                                    <option value="0" {{ old('comment_able', $post->comment_able) == 0 ? 'selected' : '' }}>{{ __('frontend/general.no') }}</option>
+                                    <option value="1" {{ old('comment_able', $post->comment_able) == 1 ? 'selected' : '' }}>{{ __('frontend/general.yes') }}</option>
+                                </select>
                                 @error('comment_able')<span class="text-danger">{{ $message }}</span>@enderror
                             </div>
                             <div class="col-4">
-                                {!! Form::label('status', "status") !!}
-                                {!! Form::select('status', ['1' => 'Active', '0' => 'Inactive' ],  old('status', $post->status), ['class' => 'form-control', 'placeholder' => 'Your Title' ]) !!}
+                                <label for="status">{{ __('frontend/general.status') }}</label>
+                                <select name="status" id="status" class="form-control">
+                                    <option value="0" {{ old('status', $post->status) == 0 ? 'selected' : '' }}>{{ __('frontend/general.inactive') }}</option>
+                                    <option value="1" {{ old('status', $post->status) == 1 ? 'selected' : '' }}>{{ __('frontend/general.active') }}</option>
+                                </select>
                                 @error('status')<span class="text-danger">{{ $message }}</span>@enderror
                             </div>
                         </div>
                         <div class="row pt-4">
                             <div class="col-12">
                                 <div class="file-loading">
-                                    {!! Form::file('images[]', ['id' => 'post-images', 'multiple' => 'multiple']) !!}
+{{--                                    {!! Form::file('images[]', ['id' => 'post-images', 'multiple' => 'multiple']) !!}--}}
+                                    <input type="file" name="images[]" id="post-images" multiple="multiple">
+                                    @error('images')<span class="text-danger">{{ $message }}</span>@enderror
                                 </div>
                             </div>
                         </div>
 
                             <div class="form-group pt-4">
-                                {!! Form::submit('Submit', ['class' => 'btn btn-primary']) !!}
+                                <button type="submit" class="btn btn-primary">{{ __('frontend/general.update_post') }}</button>
                             </div>
-
-
-                        {!! Form::close() !!}
+                    </form>
                 </div>
                 <div class="col-lg-3 col-12 md-mt-40 sm-mt-40">
                     @include('partial.frontend.users.sidebar')
@@ -81,7 +97,6 @@
                     ['view', ['fullscreen', 'codeview', 'help']]
                 ]
             });
-
             $('.selects').select2({
                 tags: true,
                 minimumResultsForSearch: Infinity,

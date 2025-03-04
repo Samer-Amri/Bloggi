@@ -31,10 +31,10 @@
                             @endif
                             <div class="post_wrapper">
                                 <div class="post_header">
-                                    <h2>{{ $post->title }}</h2>
+                                    <h2>{{  $post->title() }}</h2>
                                 </div>
                                 <div class="post_content">
-                                    <p>{!! $post->description !!}</p>
+                                    <p>{!! $post->description() !!}</p>
                                 </div>
 
                             </div>

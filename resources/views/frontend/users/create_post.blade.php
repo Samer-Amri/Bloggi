@@ -4,84 +4,90 @@
     <link rel="stylesheet" href="{{ asset('frontend/js/select2/css/select2.min.css') }}"/>
 @endsection
 @section('content')
-    {{--    I am Index Page--}}
     <div class="col-lg-9 col-12">
-        <h3>Create Post</h3>
+        <h3>{{__('Frontend/general.create_post')}}</h3>
         <form method="post" action="{{route('users.post.store')}}" enctype="multipart/form-data">
             @csrf
             <div class="form-group">
-                <label for="title">Title</label>
-                <input type="text" name="title" value="{{old('title')}}" class="form-control" placeholder="Your Title">
+                <label for="title">{{__('Frontend/general.title')}}</label>
+                <input type="text" id="title"  name="title" value="{{old('title')}}" class="form-control">
                 @error('title')<span class="text-danger">{{ $message }}</span>@enderror
             </div>
             <div class="form-group">
-                <label for="title_en">title_en</label>
-                <input type="text" name="title_en" value="{{old('title_en')}}" class="form-control"
-                       placeholder="Your title_en">
+                <label for="title_en">{{__('Frontend/general.title_en')}}</label>
+                <input type="text" name="title_en" value="{{old('title_en')}}" class="form-control">
                 @error('title_en')<span class="text-danger">{{ $message }}</span>@enderror
             </div>
+
             <div class="form-group">
-                <label for="description_en">description_en</label>
-                <textarea name="description_en" class="form-control summernote"
-                          placeholder="Your description_en">{{old('description_en')}}</textarea>
+                <label for="description">{{__('Frontend/general.description')}}</label>
+                <textarea name="description" class="form-control summernote">{{old('description')}}</textarea>
+                @error('description')<span class="text-danger">{{ $message }}</span>@enderror
+            </div>
+
+            <div class="form-group">
+                <label for="description_en">{{__('Frontend/general.description_en')}}</label>
+                <textarea name="description_en" class="form-control summernote">{{old('description_en')}}</textarea>
                 @error('description_en')<span class="text-danger">{{ $message }}</span>@enderror
             </div>
 
             <div class="form-group">
-                <label for="tags">{{__('Frontend/posts.tags')}}</label>
+                <label for="tags">{{__('Frontend/general.tags')}}</label>
                 <button type="button" class="btn btn-primary btn-xs"
-                        id="select_btn_tag">{{__('Frontend/posts.select_all')}}</button>
+                        id="select_btn_tag">{{__('Frontend/general.select_all')}}</button>
                 <button type="button" class="btn btn-primary btn-xs"
-                        id="deselect_btn_tag">{{__('Frontend/posts.deselect_all')}}</button>
+                        id="deselect_btn_tag">{{__('Frontend/general.deselect_all')}}</button>
                 <select name="tags[]" class="form-control selects" multiple="multiple" id="select_all_tags">
-                    @foreach($tags as $tag)
+                    @foreach($tags->toArray() as $tag)
                         <option
-                            value="{{$tag->id}}" {{ in_array($tag->id, old('tags[]', [])) == $tag->id ? 'selected' : ''   }}>{{$tag->name()}}</option>
+                            value="{{$tag->id}}">{{$tag->name()}}</option>
                     @endforeach
                 </select>
                 @error('tags')<span class="text-danger">{{ $message }}</span>@enderror
             </div>
-
             <div class="row">
                 <div class="col-4">
-                    <label for="category_id">category</label>
+                    <label for="category_id">{{__('Frontend/general.category')}}</label>
                     <select name="category_id" id="category_id" class="form-control">
                         <option value="">---</option>
-                        @foreach($categories as $key => $value)
-                            <option value="{{ $key }}">{{ $value }}</option>
+                        @foreach($categories->toArray() as $category)
+                            <option value="{{ $category->id }}">{{ $category->name() }}</option>
                         @endforeach
                     </select>
                     @error('category_id')<span class="text-danger">{{ $message }}</span>@enderror
                 </div>
                 <div class="col-4">
-                    {!! Form::label('comment_able', "comment_able") !!}
-                    {!! Form::select('comment_able', ['0' => 'No', '1' => 'Yes' ],  old('comment_able'), ['class' => 'form-control' ]) !!}
+                    <label for="comment_able">{{__('Frontend/general.comment_able')}}</label>
+                    <select name="comment_able" id="comment_able" class="form-control">
+                        <option value="0" {{ old('comment_able') == 0 ? 'selected' : '' }}>{{__('Frontend/general.no')}}</option>
+                        <option value="1" {{ old('comment_able') == 1 ? 'selected' : '' }}>{{__('Frontend/general.yes')}}</option>
+                    </select>
                     @error('comment_able')<span class="text-danger">{{ $message }}</span>@enderror
                 </div>
                 <div class="col-4">
-                    {!! Form::label('status', "status") !!}
-                    {!! Form::select('status', ['1' => 'Active', '0' => 'Inactive' ],  old('status'), ['class' => 'form-control' ]) !!}
+                    <label for="status">{{__('Frontend/general.status')}}</label>
+                    <select name="status" id="status" class="form-control">
+                        <option value="1" {{ old('status') == 1 ? 'selected' : '' }}>{{__('Frontend/general.active')}}</option>
+                        <option value="0" {{ old('status') == 0 ? 'selected' : '' }}>{{__('Frontend/general.inactive')}}</option>
+                    </select>
                     @error('status')<span class="text-danger">{{ $message }}</span>@enderror
                 </div>
             </div>
             <div class="row pt-4">
                 <div class="col-12">
-                    {!! Form::label('Sliders', "images") !!}
+                    <label for="post-images">{{__('Frontend/general.images')}}</label>
                     <br>
                     <div class="file-loading">
-                        {!! Form::file('images[]', ['id' => 'post-images', 'class' => 'file-input-overview', 'multiple' => 'multiple']) !!}
-                        <span class="form-text text-muted">Image width should be 800px x 500px</span>
+                        <input id="post-images" type="file" name="images[]" multiple="multiple">
+                        <span class="form-text text-muted">{{__('Frontend/general.images')}}</span>
                         @error('images')<span class="text-danger">{{ $message }}</span>@enderror
                     </div>
                 </div>
             </div>
-
             <div class="form-group pt-4">
-                {!! Form::submit('Submit', ['class' => 'btn btn-primary']) !!}
+                <button type="submit" class="btn btn-primary">{{__('Frontend/general.submit')}}</button>
             </div>
-
-
-        {!! Form::close() !!}
+        </form>>
     </div>
     <div class="col-lg-3 col-12 md-mt-40 sm-mt-40">
         @include('partial.frontend.users.sidebar')
@@ -113,12 +119,10 @@
                 $('#select_all_tags > option').prop('selected', 'selected');
                 $('#select_all_tags').trigger('change');
             });
-
             $('#deselect_btn_tag').click(function () {
                 $('#select_all_tags > option').prop('selected', '');
                 $('#select_all_tags').trigger('change');
             });
-
             $('#post-images').fileinput({
                 theme: 'fas',
                 maxFileCount: 5,
@@ -129,7 +133,5 @@
                 overwriteInitial: false,
             });
         });
-
-
     </script>
 @endsection

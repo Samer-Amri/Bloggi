@@ -12,25 +12,39 @@
             <div class="col-lg-8 d-none d-lg-block">
                 <nav class="mainmenu__nav">
                     <ul class="meninmenu d-flex justify-content-start">
-                        <li class="drop with--one--item"><a href="{{ route('frontend.index') }}">Home</a></li>
-                        <li class="drop with--one--item"><a href="{{ route('frontend.posts.show', 'about-us') }}">About Us</a></li>
-                        <li class="drop with--one--item"><a href="{{ route('frontend.posts.show', 'our-vision') }}">Our Vision</a></li>
-                        <li class="drop"><a href="javascript:void(0);">Blog</a>
+                        <li class="drop with--one--item"><a href="{{ route('frontend.index') }}">{{__('frontend/general.home')}}</a></li>
+                        <li class="drop with--one--item"><a href="{{ route('frontend.posts.show', 'about-us') }}">{{__('frontend/general.about_us')}}</a></li>
+                        <li class="drop with--one--item"><a href="{{ route('frontend.posts.show', 'our-vision') }}">{{__('frontend/general.our_vision')}}</a></li>
+                        <li class="drop"><a href="javascript:void(0);">{{__('frontend/general.blog')}}</a>
                             <div class="megamenu dropdown">
                                 <ul class="item item01">
                                     @foreach($global_categories as $global_category)
-                                        <li><a href="{{ route('frontend.category.posts', $global_category->slug) }}">{{ \Illuminate\Support\Str::upper($global_category->name) }}</a></li>
+                                        <li><a href="{{ route('frontend.category.posts', $global_category->slug) }}">{{ \Illuminate\Support\Str::upper($global_category->name()) }}</a></li>
                                     @endforeach
-
                                 </ul>
                             </div>
                         </li>
-                        <li><a href="{{ route('frontend.contact') }}">Contact</a></li>
+                        <li><a href="{{ route('frontend.contact') }}">{{__('frontend/general.contact_us')}}</a></li>
                     </ul>
                 </nav>
             </div>
             <div class="col-md-8 col-sm-8 col-5 col-lg-2">
                 <ul class="header__sidebar__right d-flex justify-content-end align-items-center">
+
+                    @if(session()->get('locale') == 'ar')
+                        <li class="lang_link">
+                            <a class="nav-link" href="{{ route('change_locale', 'en')}}">
+                                English
+                            </a>
+                        </li>
+                    @else
+                        <li class="lang_link">
+                            <a class="nav-link" href="{{ route('change_locale', 'ar')}}">
+                                عربي
+                            </a>
+                        </li>
+                    @endif
+
                     <li class="shop_search"><a class="search__active" href="#"></a></li>
                     <user-notification></user-notification>
                     <li class="setting__bar__icon"><a class="setting__active" href="#"></a>
@@ -38,17 +52,17 @@
                             <div class="content-inner">
                                 <div class="switcher-currency">
                                     <strong class="label switcher-label">
-                                        <span>My Account</span>
+                                        <span>{{__('frontend/general.my_account')}}</span>
                                     </strong>
                                     <div class="switcher-options">
                                         <div class="switcher-currency-trigger">
                                             <div class="setting__menu">
                                                 @guest
-                                                    <span><a href="{{ route('frontend.show_login_form') }}">Login</a></span>
-                                                    <span><a href="{{ route('frontend.show_register_form') }}">Register</a></span>
+                                                    <span><a href="{{ route('frontend.show_login_form') }}">{{__('frontend/general.login')}}</a></span>
+                                                    <span><a href="{{ route('frontend.show_register_form') }}">{{__('frontend/general.register')}}</a></span>
                                                 @else
-                                                    <span><a href="{{ route('users.dashboard') }}">My Dashboard</a></span>
-                                                    <span><a  href="{{ route('frontend.logout') }}" onclick="event.preventDefault();document.getElementById('logout-form').submit();">Logout</a></span>
+                                                    <span><a href="{{ route('users.dashboard') }}">{{__('frontend/general.dashboard')}}</a></span>
+                                                    <span><a  href="{{ route('frontend.logout') }}" onclick="event.preventDefault();document.getElementById('logout-form').submit();">{{__('frontend/general.logout')}}</a></span>
                                                     <form id="logout-form" action="{{ route('frontend.logout') }}" method="POST" class="d-none">
                                                         @csrf
                                                     </form>
@@ -104,7 +118,7 @@
     </form>
 
     <div class="close__wrap">
-        <span>close</span>
+        <span>{{__('frontend/general.close')}}</span>
     </div>
 </div>
 <!-- End Search Popup -->

@@ -7,8 +7,17 @@ use App\Models\Setting;
 use Illuminate\Http\Request;
 use Spatie\Valuestore\Valuestore;
 
+/**
+ * Class SettingsController
+ *
+ * Controller for handling settings-related backend requests.
+ */
 class SettingsController extends Controller
 {
+    /**
+     * SettingsController constructor.
+     * Redirects to login form if the user is not authenticated.
+     */
     public function __construct()
     {
         if (\auth()->check()){
@@ -18,6 +27,11 @@ class SettingsController extends Controller
         }
     }
 
+    /**
+     * Display a listing of the settings.
+     *
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
         if (!\auth()->user()->ability('admin', 'manage_settings,show_settings')) {
@@ -29,9 +43,15 @@ class SettingsController extends Controller
         $settings = Setting::whereSection($section)->get();
 
         return view('backend.settings.index', compact('section', 'settings_sections', 'settings'));
-
     }
 
+    /**
+     * Update the specified settings in storage.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param int $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function update(Request $request, $id)
     {
         for ($i = 0; $i < count($request->id); $i++) {
@@ -46,6 +66,9 @@ class SettingsController extends Controller
         ]);
     }
 
+    /**
+     * Generate cache for the settings.
+     */
     private function generateCache()
     {
         $settings = Valuestore::make(config_path('settings.json'));
@@ -53,5 +76,4 @@ class SettingsController extends Controller
             $settings->put($item->key, $item->value);
         });
     }
-
 }

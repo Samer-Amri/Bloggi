@@ -30,11 +30,17 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    @if(config('app.locale') == 'ar')
+        <link href="{{ asset('frontend/css/bootstrap-rtl.css') }}" rel="stylesheet">
+    @endif
+
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 
 
     <link rel="stylesheet" href="{{ asset('frontend/css/plugins.css') }}">
-    <link rel="stylesheet" href="{{ asset('frontend/css/style.css') }}">
+
+        <link rel="stylesheet" href="{{ asset('frontend/css/style-'.$dir_lang . '.css') }}">
+
 
     <!-- the fileinput plugin styling CSS file -->
     <link href="{{ asset('frontend/js/bootstrap-fileinput/css/fileinput.min.css') }}" media="all" rel="stylesheet" type="text/css" />

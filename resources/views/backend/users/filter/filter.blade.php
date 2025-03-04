@@ -1,5 +1,5 @@
 <div class="card-body">
-    <form method="post" action="{{route('admin.posts.store')}}" enctype="multipart/form-data">
+    <form method="post" action="{{route('admin.users.index')}}" enctype="multipart/form-data">
         @csrf
         <div class="row">
             <div class="col-2">

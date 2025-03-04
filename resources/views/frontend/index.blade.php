@@ -1,6 +1,5 @@
 @extends('layouts.app')
 @section('content')
-{{--    I am Index Page--}}
 <!-- Start Blog Area -->
             <div class="col-lg-9 col-12">
                 <div class="blog-page">
@@ -26,13 +25,13 @@
                                 </ul>
                                 <p>{!! \Illuminate\Support\Str::limit($post->description, 145, '...') !!}</p>
                                 <div class="blog__btn">
-                                    <a href="{{ route('frontend.posts.show', $post->slug) }}">read more</a>
+                                    <a href="{{ route('frontend.posts.show', $post->slug) }}">{{__('frontend/homepage.read_more')}}</a>
                                 </div>
                                 @if($post->tags->count() >0)
                                 <ul class="post__meta">
                                     <li>Tags : </li>
                                     @foreach($post->tags as $tag)
-                                        <li><a href="{{ route('frontend.tag.posts', $tag->slug) }}"><span class="label label-info">{{ $tag->name }}</span></a></li>
+                                        <li><a href="{{ route('frontend.tag.posts', $tag->slug) }}"><span class="label label-info">{{ $tag->name() }}</span></a></li>
                                     @endforeach
                                 </ul>
                                 @endif
@@ -41,11 +40,7 @@
                     @empty
                             <div class="text-center">No Posts found</div>
                     @endforelse
-
-
                     <!-- End Single Post -->
-
-
                 </div>
             {{--    // الفهرس pagination--}}
                 {!! $posts->appends(request()->input())->links() !!}

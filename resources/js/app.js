@@ -1,3 +1,4 @@
+/*jshint esversion: 6 */
 /**
  * First we will load all of this project's JavaScript dependencies which
  * includes Vue and other libraries. It is a great starting point when
@@ -9,6 +10,16 @@ require('./bootstrap');
 import Vue from 'vue';
 import _ from 'lodash';
 
+Vue.prototype.trans = (string, args) => {
+  let value = _.get(window.i18n, string);
+  _.eachRight(args, (paramVal, paramKey) => {
+    value = _.replace(value, `:${paramKey}`, paramVal);
+  });
+
+  return value;
+};
+
+
 /**
  * The following block of code may be used to automatically register your
  * Vue components. It will recursively scan this directory for the Vue
@@ -18,7 +29,8 @@ import _ from 'lodash';
  */
 
 // const files = require.context('./', true, /\.vue$/i)
-// files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
+// files.keys().map(key => Vue.component(
+// key.split('/').pop().split('.')[0], files(key).default))
 
 Vue.component('user-notification', require('.//components/UserNotification.vue').default);
 Vue.component('admin-notification', require('.//components/AdminNotification.vue').default);
