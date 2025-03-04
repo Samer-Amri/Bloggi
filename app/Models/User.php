@@ -10,6 +10,18 @@ use Laravel\Passport\HasApiTokens;
 use Mindscms\Entrust\Traits\EntrustUserWithPermissionsTrait;
 use Nicolaslopezj\Searchable\SearchableTrait;
 
+/**
+ * User Model
+ *
+ * Represents a user in the application.
+ *
+ * Uses:
+ * - Notifiable: For notifications.
+ * - EntrustUserWithPermissionsTrait: For role and permission management.
+ * - SearchableTrait: For search functionality.
+ * - HasApiTokens: For API token management.
+ * - HasFactory: For model factories.
+ */
 class User extends Authenticatable implements MustVerifyEmail
 {
     use Notifiable, EntrustUserWithPermissionsTrait, SearchableTrait, HasApiTokens, HasFactory;
@@ -39,6 +51,11 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_verified_at' => 'datetime',
     ];
 
+    /**
+     * The searchable configuration for the model.
+     *
+     * @var array
+     */
     protected $searchable = [
         'columns' => [
             'users.name' => 10,
@@ -48,20 +65,54 @@ class User extends Authenticatable implements MustVerifyEmail
             'users.bio' => 10,
         ],
     ];
+
+    /**
+     * Get the broadcast notification channel name for the user.
+     *
+     * @return string
+     */
     public function receivesBroadcastNotificationsOn()
     {
         return 'App.User.'.$this->id;
     }
-    public function posts() {
+
+    /**
+     * Get the posts for the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function posts()
+    {
         return $this->hasMany(Post::class);
     }
-    public function comments() {
+
+    /**
+     * Get the comments for the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function comments()
+    {
         return $this->hasMany(Comment::class);
     }
-    public  function status() {
+
+    /**
+     * Get the status of the user.
+     *
+     * @return string
+     */
+    public function status()
+    {
         return $this->status == 1 ? __('Backend/supervisors.active') : __('Backend/supervisors.inactive');
     }
-    public  function userImage() {
+
+    /**
+     * Get the user's profile image URL.
+     *
+     * @return string
+     */
+    public function userImage()
+    {
         return $this->user_image != '' ? asset('assets/users/'. $this->user_image ) : asset('assets/users/default.jpg');
     }
 }
