@@ -3,25 +3,12 @@
 namespace App\Http\Controllers\Api\Users;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\Users\UserResource;
-use App\Http\Resources\Users\UsersCategoriesResource;
-use App\Http\Resources\Users\UsersPostCommentsResource;
-use App\Http\Resources\Users\UsersPostResource;
-use App\Http\Resources\Users\UsersPostsResource;
-use App\Http\Resources\Users\UsersTagsResource;
-use App\Models\Category;
-use App\Models\Comment;
-use App\Models\Post;
-use App\Models\PostMedia;
-use App\Models\Tag;
+use App\Http\Resources\Users\{UserResource, UsersCategoriesResource, UsersPostCommentsResource, UsersPostResource, UsersPostsResource, UsersTagsResource};
+use App\Models\{Category, Comment, Post, PostMedia, Tag};
 use App\Traits\HandlesPostImages;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\{Auth, Cache, File, Hash, Validator};
 use Intervention\Image\Facades\Image;
 use Stevebauman\Purify\Facades\Purify;
 

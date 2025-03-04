@@ -3,14 +3,10 @@
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
-use App\Models\Permission;
-use App\Models\Role;
-use App\Models\UserPermission;
-use App\Models\User;
+use App\Models\{Permission, Role, UserPermission, User};
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\{File, Validator};
 use Illuminate\Support\Str;
 use Intervention\Image\Facades\Image;
 

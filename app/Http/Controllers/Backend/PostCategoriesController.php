@@ -5,9 +5,8 @@ namespace App\Http\Controllers\Backend;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\{Cache, Validator, File};
+
 
 /**
  * Class PostCategoriesController

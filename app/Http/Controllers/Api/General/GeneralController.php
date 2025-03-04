@@ -3,22 +3,10 @@
 namespace App\Http\Controllers\Api\General;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\General\AnnouncementsResource;
-use App\Http\Resources\General\PageResource;
-use App\Http\Resources\General\PostCommentsResource;
-use App\Http\Resources\General\TagsResource;
-use App\Http\Resources\Users\UserResource;
-use App\Http\Resources\Users\UsersPostResource;
-use App\Http\Resources\General\PostsResource;
-use App\Models\Announcement;
-use App\Models\Category;
-use App\Models\Comment;
-use App\Models\Contact;
-use App\Models\Post;
-use App\Models\Tag;
-use App\Models\User;
-use App\Notifications\NewCommentForAdminNotify;
-use App\Notifications\NewCommentForPostOwnerNotify;
+use App\Http\Resources\General\{AnnouncementsResource, PageResource, PostCommentsResource, TagsResource, PostsResource};
+use App\Http\Resources\Users\{UserResource, UsersPostResource};
+use App\Models\{Announcement, Category, Comment, Contact, Post, Tag, User};
+use App\Notifications\{NewCommentForAdminNotify, NewCommentForPostOwnerNotify};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Stevebauman\Purify\Facades\Purify;

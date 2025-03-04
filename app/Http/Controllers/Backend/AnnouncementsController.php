@@ -5,8 +5,7 @@ namespace App\Http\Controllers\Backend;
 use App\Http\Controllers\Controller;
 use App\Models\Announcement;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\{Cache, Validator};
 use Stevebauman\Purify\Facades\Purify;
 
 /**

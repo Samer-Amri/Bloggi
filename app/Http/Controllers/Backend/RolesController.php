@@ -3,8 +3,7 @@
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
-use App\Models\Permission;
-use App\Models\Role;
+use App\Models\{Permission, Role};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 

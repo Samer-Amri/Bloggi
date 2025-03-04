@@ -3,10 +3,7 @@
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
-use App\Models\Category;
-use App\Models\Post;
-use App\Models\PostMedia;
-use App\Models\Tag;
+use App\Models\{Category, Post, PostMedia, Tag};
 use App\Repositories\PostRepositoryInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;

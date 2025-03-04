@@ -3,9 +3,7 @@
 namespace App\Http\Controllers\Backend\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Comment;
-use App\Models\Post;
-use App\Models\User;
+use App\Models\{Comment, Post, User};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 

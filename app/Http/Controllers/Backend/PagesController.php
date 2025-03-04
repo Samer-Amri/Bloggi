@@ -3,13 +3,10 @@
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
-use App\Models\Page;
-use App\Models\Category;
-use App\Models\PostMedia;
+use App\Models\{Page, Category, PostMedia};
 use App\Traits\HandlesPostImages;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\{File, Validator};
 use Intervention\Image\Facades\Image;
 use Stevebauman\Purify\Facades\Purify;
 
