@@ -29,8 +29,8 @@ class CreatePostsTable extends Migration
             $table->timestamps();
 
             // Specify key length for the description and description_en indexes
-            $table->index(['description'], 'posts_description_index', 'fulltext', ['length' => 255]);
-            $table->index(['description_en'], 'posts_description_en_index', 'fulltext', ['length' => 255]);
+            $table->index(['description(255)'], 'posts_description_index');
+            $table->index(['description_en(255)'], 'posts_description_en_index');;
         });
     }
 
