@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-
+use Illuminate\Support\Facades\DB;
 class CreatePostsTable extends Migration
 {
     /**
@@ -29,8 +29,9 @@ class CreatePostsTable extends Migration
             $table->timestamps();
 
             // Specify key length for the description and description_en indexes
-            $table->index(['description(255)'], 'posts_description_index');
-            $table->index(['description_en(255)'], 'posts_description_en_index');;
+            $table->index([DB::raw('description(255)')], 'posts_description_index');
+            $table->index([DB::raw('description_en(255)')], 'posts_description_en_index');
+
         });
     }
 
