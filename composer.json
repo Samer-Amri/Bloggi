@@ -16,7 +16,7 @@
         "guzzlehttp/guzzle": "^7.0.1",
         "intervention/image": "^2.7",
         "intervention/imagecache": "^2.6",
-        "laravel/framework": "^v9.52.10",
+        "laravel/framework": "^v8.83.27",
         "laravel/legacy-factories": "^1.4",
         "laravel/passport": "^10.4",
         "laravel/socialite": "^5.2",
