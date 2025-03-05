@@ -19,14 +19,18 @@ class CreatePostsTable extends Migration
             $table->string('title_en')->index();
             $table->string('slug')->unique();
             $table->string('slug_en')->unique();
-            $table->text('description')->index();
-            $table->text('description_en')->index();
+            $table->text('description');
+            $table->text('description_en');
             $table->unsignedTinyInteger('status')->default(0);
             $table->string('post_type')->default('post');
             $table->unsignedTinyInteger('comment_able')->default(1);
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('category_id')->constrained()->onDelete('cascade');
             $table->timestamps();
+
+            // Specify key length for the description and description_en indexes
+            $table->index(['description'], 'posts_description_index', 'fulltext', ['length' => 255]);
+            $table->index(['description_en'], 'posts_description_en_index', 'fulltext', ['length' => 255]);
         });
     }
 
