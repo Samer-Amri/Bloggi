@@ -33,10 +33,10 @@
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.6.4",
-        "spatie/laravel-ignition": "2.5.0",
+        "spatie/laravel-ignition": "1.0",
         "fakerphp/faker": "^1.9.1",
         "mockery/mockery": "^1.4.4",
-        "nunomaduro/collision": "^v6.1.0",
+        "nunomaduro/collision": "^v5.0",
         "phpunit/phpunit": "^9.5.10"
     },
     "config": {
