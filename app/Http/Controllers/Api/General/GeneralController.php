@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api\General;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\General\{AnnouncementsResource, PageResource, PostCommentsResource, TagsResource, PostsResource};
-use App\Http\Resources\Users\{UserResource, UsersPostResource};
+use App\Http\Resources\Users\{UserResource,
+    UsersAnnouncementResource,
+    UsersPostResource};
 use App\Models\{Announcement, Category, Comment, Contact, Post, Tag, User};
 use App\Notifications\{NewCommentForAdminNotify, NewCommentForPostOwnerNotify};
 use Illuminate\Http\Request;
@@ -21,7 +23,7 @@ class GeneralController extends Controller
     /**
      * Get a paginated list of posts.
      *
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection|\Illuminate\Http\JsonResponse
      */
     public function get_posts()
     {
@@ -251,7 +253,7 @@ class GeneralController extends Controller
      * Search for posts based on a keyword.
      *
      * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
     public function search(Request $request)
     {
