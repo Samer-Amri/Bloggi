@@ -44,6 +44,7 @@ class Locale
 
    public function handle(Request $request, Closure $next)
     {
+        \Log::info('Locale middleware triggered', ['request' => $request->all()]);
         if (config('locale.status')) {
             if (Session::has('locale') && array_key_exists(Session::get('locale'), config('locale.languages'))) {
                 App::setLocale(Session::get('locale'));
