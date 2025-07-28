@@ -1,79 +1,117 @@
-# Bloggi
+ ---
 
-## Prerequisites
-- PHP >= 8.2
-- Composer
-- Node.js & npm
-- MySQL or any other supported database
-- Redis (for caching and queues)
+# Bloggi - Modern Blogging Platform
 
-## Setup Instructions
+## Overview
+Bloggi is a feature-rich blogging platform built with Laravel. It provides a robust admin interface for managing posts, categories, tags, users, comments, and site settings. Bloggi is designed for flexibility, scalability, and ease of use, making it ideal for personal blogs, multi-author sites, or content-driven communities.
 
-### 1. Clone the Repository
-```sh
-git clone https://github.com/Noxanoxa/Laravel-Projects.git
-cd Laravel-Projects/mindcms-blog
-```
+## Features
 
-### 2. Install PHP Dependencies
-```sh
-composer install
-```
+### Post Management
+- Create, edit, and delete blog posts
+- Rich text editing and media attachments
+- Slug generation and SEO-friendly URLs
+- Soft deletes and post status management (draft, published)
+- Full-text search on posts
 
-### 3. Install Node.js Dependencies
-```sh
-npm install
-```
+### Category & Tag Management
+- Organize posts into categories (supports hierarchy)
+- Tagging system for flexible content organization
 
-### 4. Environment Configuration
-- Copy the `.env.example` file to `.env`
-- Update the `.env` file with your database, Redis, and other configurations
+### Comment System
+- Nested comments on posts
+- Comment approval and moderation
+- Notifications for new comments
 
-```sh
-cp .env.example .env
-```
+### User & Role Management
+- User registration and authentication
+- Email verification
+- Role-based access control (Admin, Author, User)
+- User profile management
 
-### 5. Generate Application Key
-```sh
-php artisan key:generate
-```
+### Announcements & Pages
+- Site-wide announcements
+- Custom static pages (About, Contact, etc.)
 
-### 6. Run Database Migrations
-```sh
-Ensure that you have created new database called `bloggi` on phpmyadmin or...  
-```
+### Contact & Notifications
+- Contact form for user inquiries
+- System notifications for key events
 
-### 7. Run Database Migrations
-```sh
-php artisan migrate --seed
-```
+### Settings & Customization
+- Manage site-wide settings from the admin panel
+- Multilingual support (if enabled)
 
-### 8. Start Redis Server
-Ensure that the Redis server is running. You can start it using the following command:
-```sh
-redis-server
-```
+## Technical Stack
+- PHP 8.2+
+- Laravel 10/11
+- MySQL
+- Redis (for cache and queues)
+- Node.js & npm (for asset compilation)
 
-### 9. Run the Development Server
-```sh
-php artisan serve
-```
+## Installation
 
-### 10. Compile Assets
-```sh
-npm run dev
-```
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/Noxanoxa/Laravel-Projects.git
+   cd Laravel-Projects/mindcms-blog
+   ```
+2. **Install dependencies:**
+   ```bash
+   composer install
+   npm install
+   ```
+3. **Configure environment:**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+4. **Configure database in `.env` file:**
+   ```env
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=bloggi
+   DB_USERNAME=root
+   DB_PASSWORD=
+   ```
+5. **Run migrations and seeders:**
+   ```bash
+   php artisan migrate --seed
+   ```
+6. **Start Redis server:**
+   ```bash
+   redis-server
+   ```
+7. **Run the development server:**
+   ```bash
+   php artisan serve
+   ```
+8. **Compile assets:**
+   ```bash
+   npm run dev
+   ```
 
-## Troubleshooting
-- Ensure your `.env` file is correctly configured.
-- Check if all required services (e.g., database, Redis) are running.
+## Database Structure
+
+### Key Tables
+- `users`: Stores user accounts
+- `roles`, `permissions`, `user_permissions`: Role-based access control
+- `posts`: Blog posts
+- `categories`: Post categories (hierarchical)
+- `tags`, `posts_tags`: Tagging system
+- `comments`: Comments on posts
+- `announcements`: Site-wide announcements
+- `pages`: Static/custom pages
+- `settings`: Site settings
+- `contacts`: Contact form submissions
+- `post_media`: Media attachments for posts
+- `notifications`: System/user notifications
 
 ## Contributing
-- Fork the repository
-- Create a new branch (`git checkout -b feature-branch`)
-- Commit your changes (`git commit -m 'Add some feature'`)
-- Push to the branch (`git push origin feature-branch`)
-- Open a pull request
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+
+## Security
+If you discover any security-related issues, please email [maintainer-email] instead of using the issue tracker.
 
 ## License
-This project is licensed under the SOL License.
+This project is licensed under the SOL License. 

@@ -44,8 +44,13 @@ Route::post('refresh_token', [AuthController::class, 'refresh_token']);
 
 Route::group(['middleware' => ['auth:api']], function() {
 
-    Route::any('/notifications/get',               [UsersController::class, 'getNotifications']);
-    Route::any('/notifications/read',              [UsersController::class, 'markAsRead']);
+    // User notifications (for UserNotification.vue)
+    Route::get('user/notifications/get', [UsersController::class, 'getNotifications']);
+    Route::post('user/notifications/read', [UsersController::class, 'markAsRead']);
+
+    // Admin notifications (for AdminNotification.vue)  
+    Route::get('/admin/notifications/get', [UsersController::class, 'getNotifications']);
+    Route::post('/admin/notifications/read', [UsersController::class, 'markAsRead']);
 
 
     Route::get('/user_information', [UsersController::class, 'user_information']);
