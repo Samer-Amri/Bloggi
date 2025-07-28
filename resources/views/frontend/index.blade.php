@@ -25,7 +25,7 @@
                                 </ul>
                                 <p>{!! \Illuminate\Support\Str::limit($post->description, 145, '...') !!}</p>
                                 <div class="blog__btn">
-                                    <a href="{{ route('frontend.posts.show', $post->slug) }}">{{__('frontend/homepage.read_more')}}</a>
+                                    <a href="{{ route('frontend.posts.show', $post->slug) }}">{{__('frontend/posts.read_more')}}</a>
                                 </div>
                                 @if($post->tags->count() >0)
                                 <ul class="post__meta">

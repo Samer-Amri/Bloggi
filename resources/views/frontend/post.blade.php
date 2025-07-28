@@ -86,7 +86,7 @@
                             <h3 class="reply_title">{{__('frontend/general.leave_reply')}}<small></small></h3>
                             <form method="post" action="{{route('frontend.posts.add_comment', $post->slug)}}" enctype="multipart/form-data" class="comment__form">
                                 @csrf
-                                <p>{{ __('Frontend/general.not_published') }}</p>
+                                <p>{{ __('frontend/general.not_published') }}</p>
                                 <div class="input__box">
                                  <textarea name="comment"placeholder="{{__('frontend/general.your_comment')}}"
                                  >{{ old('comment') }}</textarea>
